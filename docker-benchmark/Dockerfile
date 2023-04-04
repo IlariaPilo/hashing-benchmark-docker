@@ -26,8 +26,7 @@ RUN git clone --recurse-submodules https://github.com/IlariaPilo/hashing-benchma
 
 # Install python dependencies
 RUN cd hashing-benchmark-docker && \
-    pip install --no-cache-dir -r requirements.txt && \
-    bash setup_datasets.sh 
+    pip install --no-cache-dir -r requirements.txt
 
 # Run a shell as first operation
 CMD ["/bin/bash"]

@@ -34,3 +34,6 @@
 # Build directories
 cmake-build*
 compile_commands.json
+
+# Datasets
+data/

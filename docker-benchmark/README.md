@@ -17,11 +17,18 @@ Build the Docker Image with:
 cd docker-benchmark
 bash build.sh
 ```
-If everything goes according to plans, the image can be later run with `bash run.sh <output_directory>`, where `<output_directory>` is a directory in the __*host machine*__ where you want to save the output. Suppose you want to store the output in /hashing-benchmark-docker/output, simply run the script as: 
+If everything goes according to plans, the image can be later run with `bash run.sh`. The script is intended to be used as follows:
 ```
-bash run.sh ../output
+Usage: run.sh [-i input_directory] [-o output_directory] [-h]
+  -i input_directory: the directory that contains the datasets
+     [default: /hashing-benchmark-docker/data]
+  -o output_directory: the directory that will store the benchmark results
+     [default: /hashing-benchmark-docker/output]
+  -h: Print this help message
 ```
+Notice that **all directories refer to the host machine**.
 
+The script automatically checks whether the input directory actually contains the dataset. If it does not, you can choose to download them or to abort the program.
 
 Hopefully, now experiments can be reproduced as described in the [original README](../README.md).
 
