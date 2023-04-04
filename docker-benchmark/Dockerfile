@@ -7,7 +7,7 @@ RUN echo -e "[options]\nSigLevel = Never" >> /etc/pacman.conf
 RUN echo "Server=https://archive.archlinux.org/repos/2021/07/11/\$repo/os/\$arch" > /etc//pacman.d/mirrorlist && \
     pacman --noconfirm -Syyuu
 # Install some stuff
-RUN pacman -S --noconfirm base-devel vim git python clang openmp cmake
+RUN pacman -S --noconfirm base-devel vim git python clang openmp cmake wget python-pip
 
 # Create a new user called "benchmarker" (the default user)
 # Add it to the wheel group
@@ -23,6 +23,11 @@ WORKDIR /home/benchmarker
 
 # Clone the github repository
 RUN git clone --recurse-submodules https://github.com/IlariaPilo/hashing-benchmark-docker
+
+# Install python dependencies
+RUN cd hashing-benchmark-docker && \
+    pip install --no-cache-dir -r requirements.txt && \
+    bash setup_datasets.sh 
 
 # Run a shell as first operation
 CMD ["/bin/bash"]
