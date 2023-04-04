@@ -161,6 +161,15 @@ done
 rm benchmark_results.json
 
 
+# Copy logs to output directory
+
+# Get the current date and time
+current_date=$(date '+%Y-%m-%d-%H-%M')
+mkdir -p output
+cp results.json ./output/${current_date}_benchmark_results.json
+cp log_stats.out ./output/${current_date}_benchmark_log_stats.out
+
+
 
 ####################################################### CODE DUMP ############################################################################
 ####################################################### CODE DUMP ############################################################################

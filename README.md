@@ -6,6 +6,9 @@ This fork adds the following features:
 
 For a specific README, go [here](./docker-benchmark/README.md).
 
+
+__*[ Up to now, only hash table experiment support ]*__
+
 ---
 
 _original README_

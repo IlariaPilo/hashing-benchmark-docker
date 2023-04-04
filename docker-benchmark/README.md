@@ -1,8 +1,12 @@
 # docker-benchmark module
 
-To use this version of the repository, just follow these steps.
+This fork adds the following features:
+- Provide a Docker container to run the experiments in the proper environment;
+- Include scripts to download and prepare the datasets.
 
-[__*Coming soon:*__ join experiment support]
+__*[ Up to now, only hash table experiment support ]*__
+
+To use this version of the repository, just follow these steps.
 
 ## Clone the repository
 The repository can be cloned by running `git clone --recurse-submodules https://github.com/IlariaPilo/hashing-benchmark-docker`.
@@ -13,7 +17,13 @@ Build the Docker Image with:
 cd docker-benchmark
 bash build.sh
 ```
-If everything goes according to plans, the image can be later run with `bash run.sh`. Hopefully, now experiments can be reproduced as described in the [original README](../README.md).
+If everything goes according to plans, the image can be later run with `bash run.sh <output_directory>`, where `<output_directory>` is a directory in the __*host machine*__ where you want to save the output. Suppose you want to store the output in /hashing-benchmark-docker/output, simply run the script as: 
+```
+bash run.sh ../output
+```
+
+
+Hopefully, now experiments can be reproduced as described in the [original README](../README.md).
 
 The generated credentials are (with `sudo` permissions):
 ```
