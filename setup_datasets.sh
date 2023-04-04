@@ -88,5 +88,5 @@ echo "done"
 python downsample.py $new_directory remove
 
 # Patch the /src/support/datasets.hpp file (-i = in place)
-sed -i "s,/home/kapil/PhDAcads/benchmark_hashing/SOSD/scripts/data,${new_directory},g" ./src/support/datasets.hpp
+sed -i "s,./data,${new_directory},g" ./src/support/datasets.hpp
 
