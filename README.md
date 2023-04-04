@@ -1,5 +1,9 @@
 # Hashing Benchmarking [DOCKER]
 
+This fork adds the following features:
+- Provide a Docker container to run the experiments in the proper environment;
+- Include scripts to download and prepare the datasets.
+
 For a specific README, go [here](./docker-benchmark/README.md).
 
 ---
