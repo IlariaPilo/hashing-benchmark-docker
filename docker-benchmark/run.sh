@@ -46,12 +46,12 @@ output_dir=$(realpath $output_dir)
 
 # Check if input_dir stores all datasets
 if [[ $(ls $input_dir/{$fb,$osm,$wiki} 2>/dev/null | wc -l) -ne 3 ]]; then
-    echo "It looks like the provided directory does not contain the required datasets.\n \
-        Do you want to download them now? [y/n]"
+    echo "It looks like the provided directory does not contain the required datasets."
+    echo "Do you want to download them now? [y/n]"
     read answer
 
     if [[ $answer == "y" || $answer == "Y" ]]; then
-        bash setup_datasets.sh $input_dir
+        bash ../setup_datasets.sh $input_dir
     else
         echo "Operation aborted"
         exit 1
