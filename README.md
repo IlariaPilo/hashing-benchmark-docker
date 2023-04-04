@@ -1,3 +1,10 @@
+# Hashing Benchmarking [DOCKER]
+
+For a specific README, go [here](./docker-benchmark/README.md).
+
+---
+
+_original README_
 
 # Hashing Benchmarking
 
