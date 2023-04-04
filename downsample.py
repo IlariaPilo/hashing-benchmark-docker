@@ -4,8 +4,8 @@ import os
 import sys
 
 def downsample(fn, directory, remove=False, start_M=800, end_M=200):
-    start_path = directory + "/" + fn + f"_{start_M}M_uint64"
-    end_path = directory + "/" + fn + f"_{end_M}M_uint64"
+    start_path = directory + "/" + fn + "_" + start_M + "M_uint64"
+    end_path = directory + "/" + fn + "_" + end_M + "M_uint64"
 
     if os.path.exists(end_path):
         print("Nothing to do here!\n")
