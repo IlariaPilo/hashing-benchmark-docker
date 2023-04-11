@@ -22,7 +22,7 @@ USER benchmarker
 WORKDIR /home/benchmarker
 
 # Clone the github repository
-RUN git clone --recurse-submodules https://github.com/IlariaPilo/hashing-benchmark-docker
+RUN git clone --recurse-submodules  https://github.com/IlariaPilo/hashing-benchmark-docker
 
 # Install python dependencies
 RUN cd hashing-benchmark-docker && \

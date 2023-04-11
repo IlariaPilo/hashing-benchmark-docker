@@ -35,5 +35,10 @@
 cmake-build*
 compile_commands.json
 
+parallel/
+
 # Datasets
 data/
+
+# Experiments
+try*

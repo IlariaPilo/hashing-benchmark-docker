@@ -12,20 +12,15 @@ input_dir="../data"
 output_dir="../output"
 
 # Parse command-line options
-while getopts "hi:o:" opt; do
+while getopts "hi:" opt; do
   case $opt in
     i)
       input_dir=$OPTARG
-      ;;
-    o)
-      output_dir=$OPTARG
       ;;
     h)
       echo "Usage: $0 [-i input_directory] [-o output_directory] [-h]"
       echo "  -i input_directory: the directory that contains the datasets"
       echo "     [default: /hashing-benchmark-docker/data]"
-      echo "  -o output_directory: the directory that will store the benchmark results"
-      echo "     [default: /hashing-benchmark-docker/output]"
       echo "  -h: Print this help message"
       exit 0
       ;;
@@ -59,6 +54,7 @@ if [[ $(ls $input_dir/{$fb,$osm,$wiki} 2>/dev/null | wc -l) -ne 3 ]]; then
         exit 1
     fi
 fi
+mkdir -p $output_dir
 
 docker run -v $output_dir:/home/benchmarker/hashing-benchmark-docker/output \
     -v $input_dir:/home/benchmarker/hashing-benchmark-docker/data \

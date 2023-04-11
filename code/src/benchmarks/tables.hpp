@@ -810,7 +810,7 @@ static void PointProbeCuckoo(benchmark::State& state) {
 
 using RMIHash = learned_hashing::RMIHash<std::uint64_t,100>;
 
-BenchmarKapilLinearModel(1,34,RMIHash);
+BenchmarKapilLinearModel(1,82,RMIHash);
 
 
 
