@@ -43,6 +43,7 @@ kickin_strat_dict={
 #  python3 kapil_python_edit_script.py 4 50 RadixSplineHash Model Cuckoo Biased 0 100000 10
 #  python3 kapil_python_edit_script.py 1 10 MWHC Exotic Chained Balanced 0 10000 10
 #  python3 kapil_python_edit_script.py 4 50 RadixSplineHash Model Linear Biased 0 100000 1024
+print(f"\033[31msys.argv: \033[0m{sys.argv}")
 
 bucket_size=int(sys.argv[1])
 overalloc=int(sys.argv[2])
@@ -54,8 +55,6 @@ kickinit_strat_bias=int(sys.argv[7])
 max_models=int(sys.argv[8])
 max_error=int(sys.argv[9])
 num_radix_bits=18
-
-print(f"\033[31msys.argv: \033[0m{sys.argv}")
 
 
 def hash_line(model_name,model_type,max_models,max_error,num_radix_bits):
