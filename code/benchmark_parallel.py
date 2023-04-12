@@ -12,7 +12,8 @@ def create_copy_and_execute(element):
 
     # Create a fully recursive copy of a directory
     new_dir = f'../parallel/{element}_code'
-    shutil.copytree('.', new_dir)
+    if not os.path.exists(new_dir):
+        shutil.copytree('.', new_dir)
     
     # Move into the copied directory
     os.chdir(new_dir)
@@ -31,7 +32,7 @@ if __name__ == '__main__':
     targets = ["learned_linear", "traditional_linear", "perfect_linear", 
            "learned_chained","traditional_chained", "perfect_chained",
            "learned_cuckoo", "traditional_cuckoo", "perfect_cuckoo"]
-    
+
     # Number of parallel processes to use
     if len(sys.argv) < 2 or int(sys.argv[1]) > 9:
         num_processes = 9

@@ -76,7 +76,7 @@ def tail(filename, remove=False):
     if not last_line.startswith("Start Here"):
         # Nothing to do here
         print(f"[{command}] Nothing to do here! *exits*")
-        exit(0)
+        sys.exit(0)
     if remove:
         # Remove last line from list
         lines.pop()
