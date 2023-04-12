@@ -1,6 +1,10 @@
 # Start from a basic Arch Linux image
 FROM archlinux:base-20210711.0.28748
 
+# Some arguments
+ARG USER_ID
+ARG GROUP_ID
+
 # Disable signature check
 RUN echo -e "[options]\nSigLevel = Never" >> /etc/pacman.conf
 # Change database
@@ -11,7 +15,8 @@ RUN pacman -S --noconfirm base-devel vim git python clang openmp cmake wget pyth
 
 # Create a new user called "benchmarker" (the default user)
 # Add it to the wheel group
-RUN useradd -m -G wheel benchmarker
+RUN groupadd -g ${GROUP_ID} benchmarker &&\
+    useradd -m -u ${USER_ID} -g benchmarker -G wheel benchmarker
 # Add password
 RUN echo "benchmarker:password" | chpasswd
 # Allow users in the wheel group to run commands with sudo

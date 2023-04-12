@@ -63,6 +63,7 @@ conf = {
 
 command = sys.argv[1]
 struct = conf[command]
+# Current directory is parallel/<command>
 output_dir = os.path.abspath("../../output") + "/" + command
 
 
