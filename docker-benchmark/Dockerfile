@@ -21,11 +21,8 @@ USER benchmarker
 
 WORKDIR /home/benchmarker
 
-# Download the clone script
-RUN wget -O clone.sh https://raw.githubusercontent.com/IlariaPilo/hashing-benchmark-docker/main/clone.sh
-# Run the clone script
-RUN sh clone.sh
-
+ADD https://api.github.com/repos/IlariaPilo/hashing-benchmark-docker/git/refs/heads/main version.json
+RUN git clone --recurse-submodules  https://github.com/IlariaPilo/hashing-benchmark-docker
 # Install python dependencies
 RUN cd hashing-benchmark-docker && \
     pip install --no-cache-dir -r requirements.txt
