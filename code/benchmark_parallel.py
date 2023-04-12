@@ -24,6 +24,9 @@ def create_copy_and_execute(element):
 
 
 if __name__ == '__main__':
+
+    print("\n------------------ PARALLEL HASH BENCHMARKS ------------------\n")
+
     # List of elements to process in parallel
     targets = ["learned_linear", "traditional_linear", "perfect_linear", 
            "learned_chained","traditional_chained", "perfect_chained",
@@ -34,6 +37,8 @@ if __name__ == '__main__':
         num_processes = 9
     else:
         num_processes = int(sys.argv[1])
+
+    print(f"starting computation with {num_processes} threads")
 
     if not os.path.exists('../parallel'):
         # Create the directory
@@ -64,7 +69,7 @@ if __name__ == '__main__':
                 outfile.write(infile.read())
                 # Add a newline character at the end of each file's content
                 # outfile.write('\n')
-                
+
             # Remove the temporary file
-            os.remove(f_name)
+            #os.remove(f_name)
 

@@ -75,6 +75,7 @@ def tail(filename, remove=False):
     # Check if the last line does not start with "Start Here"
     if not last_line.startswith("Start Here"):
         # Nothing to do here
+        print(f"[{command}] Nothing to do here! *exits*")
         exit(0)
     if remove:
         # Remove last line from list
@@ -121,13 +122,23 @@ def run_script(start_overalloc = 0, start_model_name = 0):
             subprocess.run(f'bash run.sh >> {output_dir}_log_stats.out', shell=True)
             subprocess.run(f'cat benchmark_results.json >> {output_dir}_results_tmp.json', shell=True)
 
+print(f"[{command}]")
+
 # check if the output dir exists: if not, create it
 if not os.path.exists(output_dir):
     # Create the directory
     os.mkdir(output_dir)
 
+print(f"[{command}] Loading checkpoint...")
 # load the checkpoint...
 start_overalloc, start_model_name = load_checkpoint()
 
+if start_overalloc != 0 or start_model_name != 0:
+    print(f"[{command}] Checkpoint loaded!")
+else:
+    print(f"[{command}] No checkpoint available!")
+
+print(f"[{command}] Starting computation...")
 # start!
 run_script(start_overalloc, start_model_name)
+print(f"[{command}] Done! *exits*")
