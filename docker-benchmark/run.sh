@@ -18,7 +18,7 @@ while getopts "hi:" opt; do
       input_dir=$OPTARG
       ;;
     h)
-      echo "Usage: $0 [-i input_directory] [-o output_directory] [-h]"
+      echo "Usage: $0 [-i input_directory] [-h]"
       echo "  -i input_directory: the directory that contains the datasets"
       echo "     [default: /hashing-benchmark-docker/data]"
       echo "  -h: Print this help message"
