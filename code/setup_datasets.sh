@@ -53,8 +53,8 @@ function download_file_zst() {
 
 # Check if the user has provided an argument
 if [ $# -eq 0 ]; then
-    echo "Using default directory: ./data"
-    new_directory="./data"
+    echo "Using default directory: ../data"
+    new_directory="../data"
 else
     new_directory=$1
 fi
@@ -88,5 +88,5 @@ echo "done"
 python downsample.py $new_directory remove
 
 # Patch the /src/support/datasets.hpp file (-i = in place)
-sed -i "s,./data,${new_directory},g" ./src/support/datasets.hpp
+sed -i "s,../data,${new_directory},g" ./src/support/datasets.hpp
 
