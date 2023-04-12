@@ -109,7 +109,7 @@ def load_checkpoint():
 
 def run_script(start_overalloc = 0, start_model_name = 0):
     bucket_size = str(struct["bucket_size"])
-    params_list = map(str, struct["params"])
+    params_list = list(map(str, struct["params"]))
     params_str = ' '.join(map(str, struct["params"]))
     for io in range(start_overalloc, len(struct["overalloc"])):
         overalloc = str(struct["overalloc"][io])
