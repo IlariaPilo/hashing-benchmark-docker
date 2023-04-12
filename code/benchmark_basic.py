@@ -1,7 +1,6 @@
 import sys
 import os
 import subprocess
-from datetime import datetime
 
 conf = {
     "learned_linear" : {
@@ -73,7 +72,10 @@ def tail(filename, remove=False):
         lines = file.readlines()
     # Save last line
     last_line = lines[-1]
-
+    # Check if the last line does not start with "Start Here"
+    if not last_line.startswith("Start Here"):
+        # Nothing to do here
+        exit(0)
     if remove:
         # Remove last line from list
         lines.pop()
@@ -129,11 +131,3 @@ start_overalloc, start_model_name = load_checkpoint()
 
 # start!
 run_script(start_overalloc, start_model_name)
-
-# cleanup
-now = datetime.now()
-date_string = now.strftime("%Y-%m-%d-%H-%M")
-output_file = date_string + "_" + output_dir + "results.json"
-
-subprocess.run(f'cp {output_dir}results_tmp.json {output_file}')
-os.remove(output_dir + "results_tmp.json")

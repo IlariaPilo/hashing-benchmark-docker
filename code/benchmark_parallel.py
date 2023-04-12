@@ -3,6 +3,7 @@ import os
 import sys
 import subprocess
 from multiprocessing import Pool
+from datetime import datetime
 
 # Save the original working directory
 original_dir = os.getcwd()
@@ -42,3 +43,28 @@ if __name__ == '__main__':
     with Pool(num_processes) as pool:
         # Map the list of elements to the pool of processes
         pool.map(create_copy_and_execute, targets)
+
+    # Cleanup
+    # Get all output files
+    # Define the list of file prefixes
+    now = datetime.now()
+    date_string = now.strftime("%Y-%m-%d-%H-%M")
+    output_file = "../output/" + date_string + "_results.json"
+
+    # Open the output file for writing
+    with open(output_file, 'w') as outfile:
+
+        # Iterate over the list of file prefixes
+        for file_prefix in targets:
+            f_name = file_prefix + "_results_tmp.json"
+
+            # Open the input file for reading
+            with open(f_name, 'r') as infile:
+                # Read the contents of the input file and write it to the output file
+                outfile.write(infile.read())
+                # Add a newline character at the end of each file's content
+                # outfile.write('\n')
+                
+            # Remove the temporary file
+            os.remove(f_name)
+
