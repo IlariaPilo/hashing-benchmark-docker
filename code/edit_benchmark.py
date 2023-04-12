@@ -55,6 +55,8 @@ max_models=int(sys.argv[8])
 max_error=int(sys.argv[9])
 num_radix_bits=18
 
+print(f"\033[31msys.argv: \033[0m{sys.argv}")
+
 
 def hash_line(model_name,model_type,max_models,max_error,num_radix_bits):
     if model_type_dict[model_type]!="Model":
