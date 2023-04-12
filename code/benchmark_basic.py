@@ -122,12 +122,6 @@ def run_script(start_overalloc = 0, start_model_name = 0):
             subprocess.run(f'bash run.sh >> {output_dir}_log_stats.out', shell=True)
             subprocess.run(f'cat benchmark_results.json >> {output_dir}_results_tmp.json', shell=True)
 
-print(f"[{command}]")
-
-# check if the output dir exists: if not, create it
-if not os.path.exists(output_dir):
-    # Create the directory
-    os.mkdir(output_dir)
 
 print(f"[{command}] Loading checkpoint...")
 # load the checkpoint...
