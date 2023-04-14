@@ -47,7 +47,7 @@ if [[ $(ls $input_dir/{$fb,$osm,$wiki} 2>/dev/null | wc -l) -ne 3 ]]; then
 
     if [[ $answer == "y" || $answer == "Y" ]]; then
         cd ..
-        bash setup_datasets.sh $input_dir
+        bash ../scripts/setup_datasets.sh $input_dir
         cd ./docker-benchmark
     else
         echo "Operation aborted"

@@ -1,0 +1,311 @@
+Start Here 1 34 MWHC Exotic Linear Balanced 0 0 0
+{
+  "context": {
+    "date": "2023-04-12T16:52:06+00:00",
+    "host_name": "382f50b9ef40",
+    "executable": "cmake-build-release/src/benchmarks",
+    "num_cpus": 24,
+    "mhz_per_cpu": 4600,
+    "cpu_scaling_enabled": true,
+    "caches": [
+      {
+        "type": "Data",
+        "level": 1,
+        "size": 32768,
+        "num_sharing": 2
+      },
+      {
+        "type": "Instruction",
+        "level": 1,
+        "size": 32768,
+        "num_sharing": 2
+      },
+      {
+        "type": "Unified",
+        "level": 2,
+        "size": 1048576,
+        "num_sharing": 2
+      },
+      {
+        "type": "Unified",
+        "level": 3,
+        "size": 20185088,
+        "num_sharing": 24
+      }
+    ],
+    "load_avg": [25.57,7.49,4.17],
+    "library_build_type": "release"
+  },
+  "benchmarks": [
+    {
+      "name": "PointProbe<KapilLinearExoticHashTable1MWHC, 0>/100000000/5/0/100",
+      "family_index": 0,
+      "per_family_instance_index": 0,
+      "run_name": "PointProbe<KapilLinearExoticHashTable1MWHC, 0>/100000000/5/0/100",
+      "run_type": "iteration",
+      "repetitions": 1,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 2587483,
+      "real_time": 2.6919343160737520e+02,
+      "cpu_time": 2.6919297711292700e+02,
+      "time_unit": "ns",
+      "data_elem_count": 1.0000000000000000e+08,
+      "table_bits_per_key": 2.3267634816000000e+02,
+      "table_bytes": 2.9084543520000000e+09,
+      "table_directory_bytes": 2.9084543520000000e+09,
+      "label": "KapilLinearExoticHashTable<8, 8, 1, MWHC>:wiki:uniform:100"
+    },
+    {
+      "name": "PointProbe<KapilLinearExoticHashTable1MWHC, 0>/100000000/1/0/100",
+      "family_index": 0,
+      "per_family_instance_index": 1,
+      "run_name": "PointProbe<KapilLinearExoticHashTable1MWHC, 0>/100000000/1/0/100",
+      "run_type": "iteration",
+      "repetitions": 1,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 2800259,
+      "real_time": 2.4789820941428169e+02,
+      "cpu_time": 2.4789525611641051e+02,
+      "time_unit": "ns",
+      "data_elem_count": 1.0000000000000000e+08,
+      "table_bits_per_key": 2.5728000384000001e+02,
+      "table_bytes": 3.2160000480000000e+09,
+      "table_directory_bytes": 3.2160000480000000e+09,
+      "label": "KapilLinearExoticHashTable<8, 8, 1, MWHC>:gap_10:uniform:100"
+    },
+    {
+      "name": "PointProbe<KapilLinearExoticHashTable1MWHC, 0>/100000000/2/0/100",
+      "family_index": 0,
+      "per_family_instance_index": 2,
+      "run_name": "PointProbe<KapilLinearExoticHashTable1MWHC, 0>/100000000/2/0/100",
+      "run_type": "iteration",
+      "repetitions": 1,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 2804867,
+      "real_time": 2.4734380667969043e+02,
+      "cpu_time": 2.4733029730168801e+02,
+      "time_unit": "ns",
+      "data_elem_count": 1.0000000000000000e+08,
+      "table_bits_per_key": 2.5728000384000001e+02,
+      "table_bytes": 3.2160000480000000e+09,
+      "table_directory_bytes": 3.2160000480000000e+09,
+      "label": "KapilLinearExoticHashTable<8, 8, 1, MWHC>:uniform:uniform:100"
+    },
+    {
+      "name": "PointProbe<KapilLinearExoticHashTable1MWHC, 0>/100000000/6/0/100",
+      "family_index": 0,
+      "per_family_instance_index": 3,
+      "run_name": "PointProbe<KapilLinearExoticHashTable1MWHC, 0>/100000000/6/0/100",
+      "run_type": "iteration",
+      "repetitions": 1,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 2660682,
+      "real_time": 2.6076483022128343e+02,
+      "cpu_time": 2.6075778315420490e+02,
+      "time_unit": "ns",
+      "data_elem_count": 1.0000000000000000e+08,
+      "table_bits_per_key": 2.5658471616000003e+02,
+      "table_bytes": 3.2073089520000000e+09,
+      "table_directory_bytes": 3.2073089520000000e+09,
+      "label": "KapilLinearExoticHashTable<8, 8, 1, MWHC>:normal:uniform:100"
+    },
+    {
+      "name": "PointProbe<KapilLinearExoticHashTable1MWHC, 0>/100000000/0/0/100",
+      "family_index": 0,
+      "per_family_instance_index": 4,
+      "run_name": "PointProbe<KapilLinearExoticHashTable1MWHC, 0>/100000000/0/0/100",
+      "run_type": "iteration",
+      "repetitions": 1,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 2846512,
+      "real_time": 2.4349565292886462e+02,
+      "cpu_time": 2.4346774754441304e+02,
+      "time_unit": "ns",
+      "data_elem_count": 1.0000000000000000e+08,
+      "table_bits_per_key": 2.5728000384000001e+02,
+      "table_bytes": 3.2160000480000000e+09,
+      "table_directory_bytes": 3.2160000480000000e+09,
+      "label": "KapilLinearExoticHashTable<8, 8, 1, MWHC>:seq:uniform:100"
+    },
+    {
+      "name": "PointProbe<KapilLinearExoticHashTable1MWHC, 0>/100000000/3/0/100",
+      "family_index": 0,
+      "per_family_instance_index": 5,
+      "run_name": "PointProbe<KapilLinearExoticHashTable1MWHC, 0>/100000000/3/0/100",
+      "run_type": "iteration",
+      "repetitions": 1,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 2917777,
+      "real_time": 2.3718048397591508e+02,
+      "cpu_time": 2.3717650902943899e+02,
+      "time_unit": "ns",
+      "data_elem_count": 1.0000000000000000e+08,
+      "table_bits_per_key": 2.2377215423999999e+02,
+      "table_bytes": 2.7971519280000000e+09,
+      "table_directory_bytes": 2.7971519280000000e+09,
+      "label": "KapilLinearExoticHashTable<8, 8, 1, MWHC>:fb:uniform:100"
+    }
+  ]
+}
+Start Here 1 34 BitMWHC Exotic Linear Balanced 0 0 0
+{
+  "context": {
+    "date": "2023-04-13T11:13:44+00:00",
+    "host_name": "382f50b9ef40",
+    "executable": "cmake-build-release/src/benchmarks",
+    "num_cpus": 24,
+    "mhz_per_cpu": 4600,
+    "cpu_scaling_enabled": true,
+    "caches": [
+      {
+        "type": "Data",
+        "level": 1,
+        "size": 32768,
+        "num_sharing": 2
+      },
+      {
+        "type": "Instruction",
+        "level": 1,
+        "size": 32768,
+        "num_sharing": 2
+      },
+      {
+        "type": "Unified",
+        "level": 2,
+        "size": 1048576,
+        "num_sharing": 2
+      },
+      {
+        "type": "Unified",
+        "level": 3,
+        "size": 20185088,
+        "num_sharing": 24
+      }
+    ],
+    "load_avg": [2,2,2],
+    "library_build_type": "release"
+  },
+  "benchmarks": [
+    {
+      "name": "PointProbe<KapilLinearExoticHashTable1BitMWHC, 0>/100000000/5/0/100",
+      "family_index": 0,
+      "per_family_instance_index": 0,
+      "run_name": "PointProbe<KapilLinearExoticHashTable1BitMWHC, 0>/100000000/5/0/100",
+      "run_type": "iteration",
+      "repetitions": 1,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 2182563,
+      "real_time": 3.2189208008655334e+02,
+      "cpu_time": 3.2188299856635797e+02,
+      "time_unit": "ns",
+      "data_elem_count": 1.0000000000000000e+08,
+      "table_bits_per_key": 2.3267634816000000e+02,
+      "table_bytes": 2.9084543520000000e+09,
+      "table_directory_bytes": 2.9084543520000000e+09,
+      "label": "KapilLinearExoticHashTable<8, 8, 1, BitMWHC>:wiki:uniform:100"
+    },
+    {
+      "name": "PointProbe<KapilLinearExoticHashTable1BitMWHC, 0>/100000000/1/0/100",
+      "family_index": 0,
+      "per_family_instance_index": 1,
+      "run_name": "PointProbe<KapilLinearExoticHashTable1BitMWHC, 0>/100000000/1/0/100",
+      "run_type": "iteration",
+      "repetitions": 1,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 2257782,
+      "real_time": 3.1102645738810730e+02,
+      "cpu_time": 3.1102310320483645e+02,
+      "time_unit": "ns",
+      "data_elem_count": 1.0000000000000000e+08,
+      "table_bits_per_key": 2.5728000384000001e+02,
+      "table_bytes": 3.2160000480000000e+09,
+      "table_directory_bytes": 3.2160000480000000e+09,
+      "label": "KapilLinearExoticHashTable<8, 8, 1, BitMWHC>:gap_10:uniform:100"
+    },
+    {
+      "name": "PointProbe<KapilLinearExoticHashTable1BitMWHC, 0>/100000000/2/0/100",
+      "family_index": 0,
+      "per_family_instance_index": 2,
+      "run_name": "PointProbe<KapilLinearExoticHashTable1BitMWHC, 0>/100000000/2/0/100",
+      "run_type": "iteration",
+      "repetitions": 1,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 2257855,
+      "real_time": 3.1131469780093789e+02,
+      "cpu_time": 3.1131257144501933e+02,
+      "time_unit": "ns",
+      "data_elem_count": 1.0000000000000000e+08,
+      "table_bits_per_key": 2.5728000384000001e+02,
+      "table_bytes": 3.2160000480000000e+09,
+      "table_directory_bytes": 3.2160000480000000e+09,
+      "label": "KapilLinearExoticHashTable<8, 8, 1, BitMWHC>:uniform:uniform:100"
+    },
+    {
+      "name": "PointProbe<KapilLinearExoticHashTable1BitMWHC, 0>/100000000/6/0/100",
+      "family_index": 0,
+      "per_family_instance_index": 3,
+      "run_name": "PointProbe<KapilLinearExoticHashTable1BitMWHC, 0>/100000000/6/0/100",
+      "run_type": "iteration",
+      "repetitions": 1,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 2170587,
+      "real_time": 3.2375790096983155e+02,
+      "cpu_time": 3.2375102357103373e+02,
+      "time_unit": "ns",
+      "data_elem_count": 1.0000000000000000e+08,
+      "table_bits_per_key": 2.5658540928000002e+02,
+      "table_bytes": 3.2073176160000000e+09,
+      "table_directory_bytes": 3.2073176160000000e+09,
+      "label": "KapilLinearExoticHashTable<8, 8, 1, BitMWHC>:normal:uniform:100"
+    },
+    {
+      "name": "PointProbe<KapilLinearExoticHashTable1BitMWHC, 0>/100000000/0/0/100",
+      "family_index": 0,
+      "per_family_instance_index": 4,
+      "run_name": "PointProbe<KapilLinearExoticHashTable1BitMWHC, 0>/100000000/0/0/100",
+      "run_type": "iteration",
+      "repetitions": 1,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 2254838,
+      "real_time": 3.1161454748703517e+02,
+      "cpu_time": 3.1161422461389105e+02,
+      "time_unit": "ns",
+      "data_elem_count": 1.0000000000000000e+08,
+      "table_bits_per_key": 2.5728000384000001e+02,
+      "table_bytes": 3.2160000480000000e+09,
+      "table_directory_bytes": 3.2160000480000000e+09,
+      "label": "KapilLinearExoticHashTable<8, 8, 1, BitMWHC>:seq:uniform:100"
+    },
+    {
+      "name": "PointProbe<KapilLinearExoticHashTable1BitMWHC, 0>/100000000/3/0/100",
+      "family_index": 0,
+      "per_family_instance_index": 5,
+      "run_name": "PointProbe<KapilLinearExoticHashTable1BitMWHC, 0>/100000000/3/0/100",
+      "run_type": "iteration",
+      "repetitions": 1,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 2286143,
+      "real_time": 3.0788500762941652e+02,
+      "cpu_time": 3.0788263595061568e+02,
+      "time_unit": "ns",
+      "data_elem_count": 1.0000000000000000e+08,
+      "table_bits_per_key": 2.2377215423999999e+02,
+      "table_bytes": 2.7971519280000000e+09,
+      "table_directory_bytes": 2.7971519280000000e+09,
+      "label": "KapilLinearExoticHashTable<8, 8, 1, BitMWHC>:fb:uniform:100"
+    }
+  ]
+}
+Start Here 1 54 MWHC Exotic Linear Balanced 0 0 0

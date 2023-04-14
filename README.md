@@ -43,10 +43,10 @@ If you don't want to use the container, and you prefer running the experiments o
 
 In order to download the datasets used by the benchmark script, simply run:
 ```
-cd hashing-benchmark-docker
+cd scripts
 bash setup_datasets.sh
 ```
-The script also performs automatic downsampling and patches the `hashing-benchmark-docker/src/support/datasets.hpp`.
+The script also performs automatic downsampling and patches the `hashing-benchmark-docker/code/src/support/datasets.hpp`.
 
 You can specify the directory where we want our data to be loaded:
 ```
@@ -58,9 +58,9 @@ If no directory is specified, a default `hashing-benchmark-docker/data` direcotr
 To run the hash table experiments, use the following commands:
 ```
 cd code
-python benchmark_parallel.py <number_of_threads>
+bash benchmark.sh <number_of_threads>
 ```
 If not specified, the number of threads is set to 9.
 
-The results of the hash table experiments are stored in JSON format in `/output/YY-mm-dd-HH-MM_results.json`.
+The results of the hash table experiments are stored in JSON format in `hashing-benchmark-docker/output/YY-mm-dd-HH-MM_results.json`.
 
