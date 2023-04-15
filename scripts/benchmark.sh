@@ -9,7 +9,7 @@ function create_copy_and_execute {
     # Create a fully recursive copy of a directory
     new_dir="../parallel/${element}_code"
     if [ ! -d "$new_dir" ]; then
-        cp -R . "$new_dir"
+        cp -R ../code "$new_dir"
     fi
 
     # Move into the copied directory
