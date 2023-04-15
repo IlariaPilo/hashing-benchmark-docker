@@ -1,8 +1,12 @@
 import json
 import sys
+import os
 
-in_file_path = "results.json" if len(sys.argv) < 2 else sys.argv[1]
-out_file_path = "cleaned_results.json" if len(sys.argv) < 3 else sys.argv[2]
+if len(sys.argv) < 2:
+    print("Usage: python clean_output.py <result_file_name>")
+
+in_file_path = sys.argv[1]
+out_file_path = os.path.splitext(in_file_path)[0]+ "_cleaned.json"
 
 with open(in_file_path, 'r', encoding='utf-8') as in_file:
     # load json

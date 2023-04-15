@@ -42,33 +42,27 @@ with open(file) as data_file:
     df["dataset"] = df["label"].apply(lambda x : x.split(":")[1])
     df["elem_magnitude"] = df.apply(lambda x : magnitude(x["data_elem_count"]), axis=1)
 
-    # prepare datasets for plotting & augment dataset specific columns
-    lt_df = df[df["name"].str.lower().str.contains("probe")].copy(deep=True)
-    ct_df = df[df["name"].str.lower().str.contains("construction")].copy(deep=True)
-    mw_df = df[df["name"].str.lower().str.contains("mixed")].copy(deep=True)
-    su_df = ct_df.copy(deep=True)
-
     # subset specific filtering & augmentation
-    lt_df["probe_distribution"] = lt_df["label"].apply(lambda x : x.split(":")[2] if len(x.split(":")) > 2 else "-")
-    lt_df["probe_size"] = lt_df["name"].apply(lambda x : int(x.split(",")[1].split(">")[0]))
+    df["probe_distribution"] = df["label"].apply(lambda x : x.split(":")[2] if len(x.split(":")) > 2 else "-")
+    df["probe_size"] = df["name"].apply(lambda x : int(x.split(",")[1].split(">")[0]))
 
-    ct_df["cpu_time_per_key"] = ct_df.apply(lambda x : x["cpu_time"] / x["data_elem_count"], axis=1)
-    ct_df["throughput"] = ct_df.apply(lambda x : 10**9/x["cpu_time_per_key"], axis=1)
-    ct_df = ct_df[ct_df["data_elem_count"] > 9 * 10**7]
+    df["cpu_time_per_key"] = df.apply(lambda x : x["cpu_time"] / x["data_elem_count"], axis=1)
+    df["throughput"] = df.apply(lambda x : 10**9/x["cpu_time_per_key"], axis=1)
+    df = df[df["data_elem_count"] > 9 * 10**7]
 
-    mw_df["_sort_name"] = mw_df["label"].apply(lambda x : x.split(":")[0] if len(x.split(":")) > 0 else "-")
-    mw_df["probe_distribution"] = mw_df["label"].apply(lambda x : x.split(":")[2] if len(x.split(":")) > 2 else "-")
-    mw_df = mw_df.sort_values(["_sort_name", "point_lookup_percent"], ascending=True)
+    df["_sort_name"] = df["label"].apply(lambda x : x.split(":")[0] if len(x.split(":")) > 0 else "-")
+    # df["probe_distribution"] = df["label"].apply(lambda x : x.split(":")[2] if len(x.split(":")) > 2 else "-")
+    # df = df.sort_values(["_sort_name", "point_lookup_percent"], ascending=True)
 
     # ensure export output folder exists
-    results_path = "docs" if len(sys.argv) < 3 else sys.argv[2]
+    results_path = "../output/docs"
     Path(results_path).mkdir(parents=True, exist_ok=True)
 
     def convert_to_html(fig):
         return fig.to_html(full_html=False, include_plotlyjs=False)
 
     def plot_lookup_times(probe_size):
-        data = lt_df[lt_df["probe_size"] == probe_size]
+        data = df[df["probe_size"] == probe_size]
         fig = px.line(
             data,
             x="data_elem_count",
@@ -92,7 +86,7 @@ with open(file) as data_file:
         return fig
 
     def plot_mixed():
-        data = mw_df[mw_df["data_elem_count"] == 10**8]
+        data = df[df["data_elem_count"] == 10**8]
         fig = px.line(
              data,
              x="point_lookup_percent",
@@ -118,7 +112,7 @@ with open(file) as data_file:
 
     def plot_construction_times():
         fig = px.bar(
-            ct_df,
+            df,
             x="elem_magnitude",
             y="throughput",
             color="method",
@@ -139,7 +133,7 @@ with open(file) as data_file:
 
     def plot_space_usage():
         fig = px.line(
-            su_df,
+            df,
             x="data_elem_count",
             y="table_bits_per_key",
             color="method",
@@ -160,7 +154,7 @@ with open(file) as data_file:
         return fig
 
     def plot_pareto_lookup_vs_space(probe_size):
-        filtered = lt_df[(lt_df["probe_size"] == probe_size) & (lt_df["data_elem_count"] > 9 * 10**7)] 
+        filtered = df[(df["probe_size"] == probe_size) & (df["data_elem_count"] > 9 * 10**7)] 
         fig = px.scatter(
             filtered,
             x="cpu_time",
@@ -181,7 +175,7 @@ with open(file) as data_file:
 
         return fig
 
-    outfile_name = "index.html" if len(sys.argv) < 4 else sys.argv[3]
+    outfile_name = "index.html" if len(sys.argv) < 3 else sys.argv[2]
     with open(f'{results_path}/{outfile_name}', 'w') as readme:
         readme.write(cleandoc(f"""
         <!doctype html>
@@ -192,20 +186,13 @@ with open(file) as data_file:
 
           <body>
             {convert_to_html(plot_lookup_times(0))}
-            {convert_to_html(plot_lookup_times(1))}
-            {convert_to_html(plot_lookup_times(10))}
-            {convert_to_html(plot_lookup_times(20))}
 
             {convert_to_html(plot_space_usage())}
 
             {convert_to_html(plot_pareto_lookup_vs_space(0))}
-            {convert_to_html(plot_pareto_lookup_vs_space(1))}
-            {convert_to_html(plot_pareto_lookup_vs_space(10))}
-            {convert_to_html(plot_pareto_lookup_vs_space(20))}
 
             {convert_to_html(plot_construction_times())}
 
-            {convert_to_html(plot_mixed())}
           </body>
         </html>
         """))
