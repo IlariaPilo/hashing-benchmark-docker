@@ -176,7 +176,7 @@ with open(file) as data_file:
 
         return fig
 
-    outfile_name = os.path.splitext(file)[0] + ".html"
+    outfile_name = os.path.splitext(os.path.basename(file))[0] + ".html"
     with open(f'{results_path}/{outfile_name}', 'w') as readme:
         readme.write(cleandoc(f"""
         <!doctype html>

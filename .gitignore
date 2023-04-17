@@ -36,7 +36,7 @@ cmake-build*
 compile_commands.json
 
 parallel/
-server*
+local*
 
 # Datasets
 data/
