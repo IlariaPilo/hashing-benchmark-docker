@@ -1,4 +1,5 @@
 import json
+import os
 import math
 import pandas as pd
 import sys
@@ -23,7 +24,7 @@ plot_labels = dict(
     table_bits_per_key='total bits per key',
     point_lookup_percent='percentage of point queries')
 
-file = "results.json" if len(sys.argv) < 2 else sys.argv[1]
+file = sys.argv[1]
 with open(file) as data_file:
     data = json.load(data_file)
 
@@ -175,7 +176,7 @@ with open(file) as data_file:
 
         return fig
 
-    outfile_name = "index.html" if len(sys.argv) < 3 else sys.argv[2]
+    outfile_name = os.path.splitext(file)[0] + ".html"
     with open(f'{results_path}/{outfile_name}', 'w') as readme:
         readme.write(cleandoc(f"""
         <!doctype html>

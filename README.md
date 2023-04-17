@@ -46,21 +46,46 @@ In order to download the datasets used by the benchmark script, simply run:
 cd scripts
 bash setup_datasets.sh
 ```
-The script also performs automatic downsampling and patches the `hashing-benchmark-docker/code/src/support/datasets.hpp`.
+The script also performs automatic downsampling and patches the `/code/src/support/datasets.hpp`.
 
 You can specify the directory where we want our data to be loaded:
 ```
 bash setup_datasets.sh /home/ilaria/some_external_directory
 ```
-If no directory is specified, a default `hashing-benchmark-docker/data` direcotry is created and used.
+If no directory is specified, a default `/data` direcotry is created and used.
 
 ## Run the experiments
 To run the hash table experiments, use the following commands:
 ```
-cd code
+cd scripts
 bash benchmark.sh <number_of_threads>
 ```
-If not specified, the number of threads is set to 9.
+If not specified, the number of threads is set to 9. The output of each job is saved in a separate `/output/*results_tmp.json` file.
 
-The results of the hash table experiments are stored in JSON format in `hashing-benchmark-docker/output/YY-mm-dd-HH-MM_results.json`.
+## Clean the output
+It is possible to clean the output using the following scripts:
+### 1. `merge_ouptut.py`
+`merge_ouptut.py` combines all benchmarks in all `*results_tmp.json` files in a single JSON object. The object is dumped in `/output/YY-mm-dd-HH-MM_results.json`.
 
+The option `-rm` can be specified to delete all `*results_tmp.json` and `.out` files.
+```
+cd scripts
+python merge_output.py [-rm]
+```
+### 2. `clean_ouptut.py`
+`clean_ouptut.py` compares different runs of the same benchmark, keeping only the best one. The cleaned results are saved in `/output/YY-mm-dd-HH-MM_results_cleaned.json`, where the date is the same of the input file.
+
+Example of usage:
+```
+cd scripts
+python clean_output.py ../output/2023-04-17-17-21_results.json
+```
+
+### 3. `export_ouptut.py`
+`export_ouptut.py` plots many interesting charts. The output is an html file with the same name of the input file, saved in `/output/docs`.
+
+Example of usage:
+```
+cd scripts
+python export_output.py ../output/2023-04-17-17-21_results_cleaned.json
+```

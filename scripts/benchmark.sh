@@ -54,25 +54,3 @@ for element in "${targets[@]}"; do
     fi
 done
 wait
-
-# Cleanup
-# Get all output files
-# Define the list of file prefixes
-now=$(date +"%Y-%m-%d-%H-%M")
-output_file="../output/${now}_results.json"
-
-# Open the output file for writing
-for file_prefix in "${targets[@]}"; do
-    f_name="${file_prefix}_results_tmp.json"
-
-    # Open the input file for reading
-    if [ -f "$f_name" ]; then
-        # Read the contents of the input file and write it to the output file
-        cat "$f_name" >> "$output_file"
-        # Add a newline character at the end of each file's content
-        # echo >> "$output_file"
-
-        # Remove the temporary file
-        # rm "$f_name"
-    fi
-done
