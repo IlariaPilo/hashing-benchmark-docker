@@ -37,6 +37,9 @@ if [[ $(ls $input_dir/{$fb,$osm,$wiki} 2>/dev/null | wc -l) -ne 3 ]]; then
         echo "Operation aborted"
         exit 1
     fi
+else
+  # check anyway (for checksum)
+  bash ${BASE_DIR}/scripts/setup_datasets.sh $input_dir
 fi
 
 docker run --rm -v $output_dir:/home/benchmarker/hashing-benchmark-docker/output \
