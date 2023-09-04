@@ -56,6 +56,6 @@ if [[ $(ls $input_dir/{$fb,$osm,$wiki} 2>/dev/null | wc -l) -ne 3 ]]; then
 fi
 mkdir -p $output_dir
 
-docker run -v $output_dir:/home/benchmarker/hashing-benchmark-docker/output \
+docker run --rm -v $output_dir:/home/benchmarker/hashing-benchmark-docker/output \
     -v $input_dir:/home/benchmarker/hashing-benchmark-docker/data \
     -it docker-benchmark
