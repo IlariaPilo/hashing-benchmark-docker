@@ -1,94 +1,91 @@
 #!/bin/bash
+set -e  # Stop if there is a failure
 
-#============ from https://github.com/learnedsystems/SOSD/blob/master/scripts/download.sh ============#
+# setup_datasets.sh
+# A file to setup the datasets
 
-# Calculate md5 checksum of FILE and stores it in MD5_RESULT
-function get_checksum() {
-   FILE=$1
+#------------- DOWNLOAD UTILITY -------------#
+function download_dataset() {
+    FILE=$1;
+    data_dir=$2;
+    URL=$3;
+    CHECKSUM=$4;
+   
+    # Check if file already exists
+    if [ -f "${data_dir}/${FILE}" ]; then
+    echo "file ${FILE} exists, checking hash..."
+        # Exists -> check the checksum
+        sha_result=$(sha256sum "${data_dir}/${FILE}" | awk '{ print $1 }')
+        if [ "${sha_result}" != "${CHECKSUM}" ]; then
+            echo "wrong checksum, retrying..."
+            echo "EXPECTED ${CHECKSUM}"
+            echo "GOT      ${sha_result}"
+            rm "${data_dir}/${FILE}"
+            curl -L $URL | zstd -d > "${data_dir}/${FILE}"
+        fi
+    else
+        # Download
+        curl -L $URL | zstd -d > "${data_dir}/${FILE}"
+    fi
 
-   if [ -x "$(command -v md5sum)" ]; then
-      # Linux
-      MD5_RESULT=`md5sum ${FILE} | awk '{ print $1 }'`
-   else
-      # OS X
-      MD5_RESULT=`md5 -q ${FILE}`
-   fi
+    # Validate (at this point the file should really exist)
+    count=0
+    ok=0
+    while [ $count -lt 10 ]
+    do
+        sha_result=$(sha256sum "${data_dir}/${FILE}" | awk '{ print $1 }')
+        if [ "${sha_result}" == "${CHECKSUM}" ]; then
+            echo -e ${FILE} "checksum ok\n"
+            ok=1
+            break
+        fi
+        rm "${data_dir}/${FILE}"
+        echo "wrong checksum, retrying..."
+        echo "EXPECTED ${CHECKSUM}"
+        echo "GOT      ${sha_result}"
+        curl -L $URL | zstd -d > "${data_dir}/${FILE}"
+        count=$((count+1))
+    done
+    if [ $ok -eq 0 ]; then
+        echo "download has failed 10 times. please, run again."
+        exit -1
+    fi
 }
 
-function download_file_zst() {
-   FILE=$1;
-   CHECKSUM=$2;
-   URL=$3;
+# Checksums
+check_fb="22d5fd6f608e528c2ab60b77d4592efa5765516b75a75350f564feb85d573415"
+check_wiki="097f218d6fc55d93ac3b5bdafc6f35bb34f027972334e929faea3da8198ea34d"
+#check_books="6e690b658db793ca77c1285c42ad681583374f1d11eb7a408e30e16ca0e450da"
+check_osm="1d1f5681cbfcd3774de112533dccc4065b58b74adf09684e9ad47298d1caa9e0"
 
-   # Check if file already exists
-   if [ -f ${FILE} ]; then
-      # Exists -> check the checksum
-      get_checksum ${FILE}
-      if [ "${MD5_RESULT}" != "${CHECKSUM}" ]; then
-         wget -O - ${URL} | zstd -d > ${FILE}
-      fi
-   else
-      # Check if downsampled version exists
-      DOWNSAMPLED_FILE=${FILE/800M/200M}
-      if [ ! -f DOWNSAMPLED_FILE ]; then
-         # Does not exists -> download
-         wget -O - ${URL} | zstd -d > ${FILE}
-      else
-         return
-      fi
-   fi
+# URLs
+url_fb="https://dataverse.harvard.edu/api/access/datafile/:persistentId?persistentId=doi:10.7910/DVN/JGVF9A/EATHF7"
+url_wiki="https://dataverse.harvard.edu/api/access/datafile/:persistentId?persistentId=doi:10.7910/DVN/JGVF9A/SVN8PI"
+#url_books="https://dataverse.harvard.edu/api/access/datafile/:persistentId?persistentId=doi:10.7910/DVN/JGVF9A/5YTV8K"
+url_osm="https://dataverse.harvard.edu/api/access/datafile/:persistentId?persistentId=doi:10.7910/DVN/JGVF9A/8FX9BV"
 
-   # Validate (at this point the file should really exist)
-   get_checksum ${FILE}
-   if [ "${MD5_RESULT}" != "${CHECKSUM}" ]; then
-      echo "error checksum does not match: run download again"
-      exit -1
-   else
-      echo ${FILE} "checksum ok"
-   fi
-}
-
-#=====================================================================================================#
-
+#--------------------------------------------#
 
 # Check if the user has provided an argument
 if [ $# -eq 0 ]; then
     echo "Using default directory: ../data"
-    new_directory="../data"
+    data_dir="../data"
 else
-    new_directory=$1
+    data_dir=$1
 fi
 
-new_directory=$(realpath $new_directory)
+data_dir=$(realpath $data_dir)
 
-# Save current directory
-initial_dir=$(pwd)
+INITIAL_DIR=$(pwd)
+_source_dir_=$(dirname "$0")
+BASE_DIR=$(readlink -f "${_source_dir_}/..")     # /home/ilaria/Documents/stage/hashing-benchmark-docker
+cd $BASE_DIR
 
-# A file to setup the datasets
-# To be used only once
-
-# First, download the datasets
-
-#============ from https://github.com/learnedsystems/SOSD/blob/master/scripts/download.sh ============#
-
-echo "downloading data ..."
-mkdir -p $new_directory
-cd $new_directory
-
-# Format: download_file <file_name> <md5_checksum> <url>
-download_file_zst wiki_ts_200M_uint64 4f1402b1c476d67f77d2da4955432f7d https://dataverse.harvard.edu/api/access/datafile/:persistentId?persistentId=doi:10.7910/DVN/JGVF9A/SVN8PI
-# download_file_zst books_200M_uint32 9f3e578671e5c0348cdddc9c68946770 https://dataverse.harvard.edu/api/access/datafile/:persistentId?persistentId=doi:10.7910/DVN/JGVF9A/5YTV8K  
-download_file_zst fb_200M_uint64 3b0f820caa0d62150e87ce94ec989978 https://dataverse.harvard.edu/api/access/datafile/:persistentId?persistentId=doi:10.7910/DVN/JGVF9A/EATHF7 
-download_file_zst osm_cellids_800M_uint64 70670bf41196b9591e07d0128a281b9a https://www.dropbox.com/s/j1d4ufn4fyb4po2/osm_cellids_800M_uint64.zst?dl=1 
-
-cd $initial_dir
-echo "done"
-
-#=====================================================================================================#
-
-# Now, downsample osm_cellids to 200M
-python downsample.py $new_directory remove
+# Check if datasets are there
+download_dataset "fb_200M_uint64" $data_dir $url_fb $check_fb
+download_dataset "wiki_ts_200M_uint64" $data_dir $url_wiki $check_wiki
+#download_dataset "books_200M_uint32" $data_dir $url_books $check_books
+download_dataset "osm_cellids_200M_uint64" $data_dir $url_osm $check_osm
 
 # Patch the /src/support/datasets.hpp file (-i = in place)
-sed -i "s,../../data,${new_directory},g" ../code/src/support/datasets.hpp
-
+sed -i "s,../../data,${data_dir},g" ${BASE_DIR}/code/src/support/datasets.hpp
