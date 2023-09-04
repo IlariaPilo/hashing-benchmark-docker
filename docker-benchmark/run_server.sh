@@ -1,2 +1,2 @@
 # This is a lazy file (I'm lazy)
-bash run.sh -i /media/ssd/ilaria/stage/data
+bash run.sh /media/ssd/ilaria/stage/data

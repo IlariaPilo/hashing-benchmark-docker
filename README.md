@@ -15,20 +15,19 @@ The repository can be cloned by running `git clone --recurse-submodules https://
 
 ## Use the Docker Image
 Build the Docker Image with:
-```
+```bash
 cd docker-benchmark
 bash build.sh
 ```
 If everything goes according to plans, the image can be later run with `bash run.sh`. The script is intended to be used as follows:
+```bash
+bash run.sh <input_dir>
 ```
-Usage: run.sh [-i input_directory] [-h]
-  -i input_directory: the directory that contains the datasets
-     [default: /hashing-benchmark-docker/data]
-  -h: Print this help message
-```
-Notice that **all directories refer to the host machine**.
+where `<input_dir>` refers to the directory storing the required datasets. 
 
 The script automatically checks whether the input directory actually contains the dataset. If it does not, you can choose to download them or to abort the program.
+
+Notice that **all directories refer to the host machine**.
 
 The generated credentials are (with `sudo` permissions):
 ```
