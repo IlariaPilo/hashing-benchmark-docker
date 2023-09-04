@@ -66,20 +66,19 @@ url_osm="https://dataverse.harvard.edu/api/access/datafile/:persistentId?persist
 
 #--------------------------------------------#
 
+INITIAL_DIR=$(pwd)
+_source_dir_=$(dirname "$0")
+BASE_DIR=$(readlink -f "${_source_dir_}/..")     # /home/ilaria/Documents/stage/hashing-benchmark-docker
+
 # Check if the user has provided an argument
 if [ $# -eq 0 ]; then
-    echo "Using default directory: ../data"
-    data_dir="../data"
+    echo "Using default directory: hashing-benchmark-docker/data"
+    data_dir="${BASE_DIR}/data"
 else
     data_dir=$1
 fi
 
 data_dir=$(realpath $data_dir)
-
-INITIAL_DIR=$(pwd)
-_source_dir_=$(dirname "$0")
-BASE_DIR=$(readlink -f "${_source_dir_}/..")     # /home/ilaria/Documents/stage/hashing-benchmark-docker
-cd $BASE_DIR
 
 # Check if datasets are there
 download_dataset "fb_200M_uint64" $data_dir $url_fb $check_fb
