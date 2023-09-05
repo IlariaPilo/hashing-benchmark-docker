@@ -1,6 +1,5 @@
 #!/bin/bash
-
-# Thanks @ ChatGPT for the skeleton of this bash program :D
+set -e # stop if there is an error
 
 fb="fb_200M_uint64"
 osm="osm_cellids_200M_uint64"
@@ -22,7 +21,7 @@ else
   input_dir=$(realpath $1)
 fi
 
-mkdir -p $input_dir
+# mkdir -p $input_dir
 mkdir -p $output_dir
 
 # Check if input_dir stores all datasets
