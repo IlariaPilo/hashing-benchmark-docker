@@ -41,17 +41,13 @@ __*IMPORTANT:*__ never, ever, _ever_ update the package manager on the Docker co
 If you don't want to use the container, and you prefer running the experiments on your native environment, you can use this utility to download and setup the datasets.
 
 In order to download the datasets used by the benchmark script, simply run:
-```
+```sh
 cd scripts
-bash setup_datasets.sh
+bash setup_datasets.sh <input_dir>
 ```
-The script also performs automatic downsampling and patches the `/code/src/support/datasets.hpp`.
+where `<input_dir>` refers to the directory that will store the required datasets. 
 
-You can specify the directory where we want our data to be loaded:
-```
-bash setup_datasets.sh /home/ilaria/some_external_directory
-```
-If no directory is specified, a default `/data` direcotry is created and used.
+The script also patches the `/code/src/support/datasets.hpp`.
 
 ## Run the experiments
 To run the hash table experiments, use the following commands:

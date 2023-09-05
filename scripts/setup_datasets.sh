@@ -80,6 +80,8 @@ fi
 
 data_dir=$(realpath $data_dir)
 
+mkdir -p $data_dir
+
 # Check if datasets are there
 download_dataset "fb_200M_uint64" $data_dir $url_fb $check_fb
 download_dataset "wiki_ts_200M_uint64" $data_dir $url_wiki $check_wiki
