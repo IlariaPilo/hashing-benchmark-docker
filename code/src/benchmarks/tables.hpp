@@ -59,7 +59,7 @@ const std::vector<std::int64_t> datasets{
     static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::UNIFORM),
     static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::NORMAL),
     static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::SEQUENTIAL),
-    // static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::OSM),
+    static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::OSM),   // TODO - put back to commented
     static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::FB)
     };
 
@@ -441,7 +441,8 @@ static void PointProbe(benchmark::State& state) {
     benchmark::DoNotOptimize(it);
 
     // __sync_synchronize();
-    // full_mem_barrier;
+    // TODO - put back to commented
+    full_mem_barrier;
   }
 
   // set counters (don't do this in inner loop to avoid tainting results)
