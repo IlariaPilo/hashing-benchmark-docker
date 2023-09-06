@@ -137,8 +137,9 @@ class KapilChainedModelHashTable {
     // {
       // model.train(keys.begin(), keys.end(), buckets.size());
     // }
-
+    #if PRINT
     std::cout<<std::endl<<"Start Here "<<BucketSize<<" "<<OverAlloc<<" "<<model.name()<<" Model Chained Balanced 0 "<<model.model_count()<<" 0"<<std::endl<<std::endl;
+    #endif
 
     key_vec.resize(2*keys.size(),0);
     std::sort(keys.begin(),keys.end());
@@ -157,14 +158,18 @@ class KapilChainedModelHashTable {
     std::random_shuffle(data.begin(), data.end());
     uint64_t insert_count=1000000;
 
+    #if PRINT
     std::cout<<"Starting Inserts"<<std::endl;
+    #endif
 
     for(uint64_t i=0;i<data.size()-insert_count;i++)
     {
       insert(data[i].first,data[i].second);
     }
 
+    #if PRINT
     std::cout<<"Mid Inserts"<<std::endl;
+    #endif
    
     auto start = std::chrono::high_resolution_clock::now(); 
 
@@ -175,12 +180,16 @@ class KapilChainedModelHashTable {
 
      auto stop = std::chrono::high_resolution_clock::now(); 
 
+    #if PRINT
     std::cout<<"Enddd Inserts"<<std::endl;
+    #endif
 
     // auto duration = duration_cast<milliseconds>(stop - start); 
     auto duration = duration_cast<std::chrono::nanoseconds>(stop - start); 
-    std::cout<< std::endl << "Insert Latency is: "<< duration.count()*1.00/insert_count << " nanoseconds" << std::endl;
 
+    #if PRINT
+    std::cout<< std::endl << "Insert Latency is: "<< duration.count()*1.00/insert_count << " nanoseconds" << std::endl;
+    #endif
 
   }
 
@@ -504,11 +513,7 @@ class KapilChainedModelHashTable {
     }  
 
     std::cout<<" max keys map to a location is: "<<max_val<<std::endl;
-
-
-
     std::cout<<"End MaxBucketSize Stats"<<std::endl;
-
     std::cout<<"Start Gap Stats"<<std::endl;
 
     for (it = count_gap.begin(); it != count_gap.end(); it++)
@@ -523,15 +528,10 @@ class KapilChainedModelHashTable {
 
     std::cout<<"End Gap Stats"<<std::endl;
 
-
     return;
 
 
   }
-
-
-
-  
 
   void print_data_statistics()
   {

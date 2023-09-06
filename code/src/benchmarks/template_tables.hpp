@@ -146,7 +146,9 @@ static void TableProbe(benchmark::State& state) {
 
   // if it is a new signature, it is time to initialize!
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
     // Generate data (keys & payloads) & probing set
     std::vector<std::pair<Key, Payload>> data{};
@@ -164,7 +166,7 @@ static void TableProbe(benchmark::State& state) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
     // build table
@@ -174,8 +176,10 @@ static void TableProbe(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
   }
 
   previous_signature = signature;
@@ -254,7 +258,9 @@ static void TableMixedLookup(benchmark::State& state) {
                           dataset::name(did) + "_" +
                           dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
     // Generate data (keys & payloads) & probing set
     std::vector<std::pair<Key, Payload>> data{};
@@ -280,8 +286,10 @@ static void TableMixedLookup(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
   }
   previous_signature = signature;
 
@@ -366,7 +374,9 @@ static void PointProbe(benchmark::State& state) {
   // }
      
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
     // Generate data (keys & payloads) & probing set
     std::vector<std::pair<Key, Payload>> data{};
@@ -383,7 +393,7 @@ static void PointProbe(benchmark::State& state) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
     // build table
@@ -393,14 +403,21 @@ static void PointProbe(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
     // ------ this is extra wrt to TableProbe ------ //
     std::sort(data.begin(), data.end(),[](const auto& a, const auto& b) { return a.first < b.first; });
+    #if PRINT
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
-    // table->print_data_statistics();
+    #endif
+
     Table* table = (Table*)prev_table;
+
+    #if PRINT
     table->print_data_statistics();
+    #endif
 
     // TODO - these are useless? their scope finishes right after?
     uint64_t total_sum=0;
@@ -465,7 +482,9 @@ static void CollisionStats(benchmark::State& state) {
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
       dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
 
     // Generate data (keys & payloads) & probing set
@@ -485,7 +504,7 @@ static void CollisionStats(benchmark::State& state) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
 
@@ -497,22 +516,24 @@ static void CollisionStats(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
     
-    
-
   }
   
 
   assert(prev_table != nullptr);
   Table* table = (Table*)prev_table;
 
+  #if PRINT
   if (previous_signature != signature)
   {
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
     table->print_data_statistics();
   }
+  #endif
 
   // std::cout<<"signature swap"<<std::endl;
 
@@ -657,7 +678,9 @@ static void PointProbeCuckoo(benchmark::State& state) {
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
       dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
 
     // Generate data (keys & payloads) & probing set
@@ -677,7 +700,7 @@ static void PointProbeCuckoo(benchmark::State& state) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
 
@@ -689,24 +712,23 @@ static void PointProbeCuckoo(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
-
-    // std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
-    // prev_table->print_data_statistics();
-
+    #endif
   }
   
 
   assert(prev_table != nullptr);
   Table* table = (Table*)prev_table;
 
-
+  #if PRINT
   if (previous_signature != signature)
   {
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
     table->print_data_statistics();
   }
+  #endif
 
 
   // if (previous_signature != signature)

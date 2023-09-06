@@ -940,7 +940,9 @@ void _sort_trained(RandomIt begin, RandomIt end,
   }  // end of iteration over each major bucket
 
 if(thread_id==0 && partition_id==0)
+  #if PRINT
   std::cout << "learned_sort: spill_bucket size: "<< spill_bucket->size() << std::endl;
+  #endif
 
   //----------------------------------------------------------//
   //                 SORT THE SPILL BUCKET                    //
@@ -1088,7 +1090,7 @@ void learned_sort::sort(
     if (rmi.trained)
       _sort_trained(begin, end, rmi, thread_id, partition_id); 
     else{  
-      std::cout << "[Warning] the provided RMI is not trained, so we fall back to std::sort() " << std::endl;  
+      std::cerr << "[Warning] the provided RMI is not trained, so we fall back to std::sort() " << std::endl;  
       // Fall back in case the model could not be trained
       std::sort(begin, end);
     }

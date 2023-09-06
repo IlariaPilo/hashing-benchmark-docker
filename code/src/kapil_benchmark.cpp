@@ -109,7 +109,7 @@ void print_data_statistics_generic(uint64_t dataset_size,dataset::ID did)
   if (data.empty()) {
     // otherwise google benchmark produces an error ;(
     
-    std::cout << "failed" << std::endl;
+    std::cerr << "failed" << std::endl;
     return;
   }
 
@@ -121,8 +121,10 @@ void print_data_statistics_generic(uint64_t dataset_size,dataset::ID did)
   // measure time elapsed
   const auto end = std::chrono::steady_clock::now();
   std::chrono::duration<double> diff = end - start;
+
   std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
             << std::endl;
+
 
  
   assert(prev_table != nullptr);
