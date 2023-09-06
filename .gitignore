@@ -36,11 +36,10 @@ cmake-build*
 compile_commands.json
 
 parallel/
-local*
 
 # Datasets
 data/
 
 # Experiments
 try*
-local_*
+local*
