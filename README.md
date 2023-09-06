@@ -8,12 +8,14 @@ This fork adds the following features:
 
 __*[ Up to now, only hash table experiment support ]*__
 
+<!--## Table Of Contents-->
+
 To use this version of the repository, just follow these steps.
 
-## Clone the repository
+## 0 | Clone the repository
 The repository can be cloned by running `git clone --recurse-submodules https://github.com/IlariaPilo/hashing-benchmark-docker`.
 
-## Use the Docker Image
+## 1 | Use the Docker Image
 Build the Docker Image with:
 ```bash
 cd docker
@@ -23,12 +25,12 @@ If everything goes according to plans, the image can be later run with `bash run
 ```bash
 bash run.sh <input_dir> [--fast]
 ```
-where `<input_dir>` refers to the directory storing the required datasets. 
+where `<input_dir>` refers to the directory that stores (or will store) the required datasets. 
 The `--fast` [or `-f`] option skips the checksum control for a faster (but less safe) run of the container.
 
-The script automatically checks whether the input directory actually contains the dataset. If it does not, you can choose to download them or to abort the program.
+The script automatically checks whether the input directory actually contains the dataset. If it does not, it is possible to download them or to abort the program.
 
-Notice that **all directories refer to the host machine**.
+Notice that **all directories refer to the host machine**. <!-- TODO : maybe remove this part? -->
 
 The generated credentials are (with `sudo` permissions):
 ```
@@ -37,6 +39,8 @@ PASSWORD: password
 ```
 
 __*IMPORTANT:*__ never, ever, _ever_ update the package manager on the Docker container!
+
+<!-- everything is fine -->
 
 ## Download the datasets
 <!-- TODO : maybe remove this part? -->
@@ -58,6 +62,13 @@ cd scripts
 bash benchmark.sh <number_of_threads>
 ```
 If not specified, the number of threads is set to 9. The output of each job is saved in a separate `/output/*results_tmp.json` file.
+
+### Enable prints
+Informative prints are disabled by default, as they make the output messy and less clear. To rehabilitate them, just change the value of the `PRINT` macro in the [./code/masters_thesis.hpp](masters_thesis.hpp) file to 1.
+```diff
+- #define PRINT 0
++ #define PRINT 1 
+```
 
 ## Clean the output
 It is possible to clean the output using the following scripts:

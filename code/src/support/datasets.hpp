@@ -27,7 +27,9 @@ static void deduplicate_and_sort(std::vector<T>& vec) {
  */
 template <class Key>
 std::vector<Key> load(const std::string& filepath) {
+  #if PRINT
   std::cout << "loading dataset " << filepath << std::endl;
+  #endif
 
   // parsing helper functions
   auto read_little_endian_8 = [](const std::vector<unsigned char>& buffer,
