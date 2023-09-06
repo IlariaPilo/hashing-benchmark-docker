@@ -24,12 +24,12 @@ function create_copy_and_execute {
 echo -e "\n------------------ PARALLEL HASH BENCHMARKS ------------------\n"
 
 # List of elements to process in parallel
-# targets=("learned_linear" "traditional_linear" "perfect_linear" 
-#         "learned_chained" "traditional_chained" "perfect_chained"
-#         "learned_cuckoo" "traditional_cuckoo" "perfect_cuckoo")
 targets=("learned_linear" "traditional_linear" "perfect_linear" 
          "learned_chained" "traditional_chained" "perfect_chained"
-         "learned_cuckoo" "traditional_cuckoo")
+         "learned_cuckoo" "traditional_cuckoo" "perfect_cuckoo")
+#targets=("learned_linear" "traditional_linear" "perfect_linear" 
+#         "learned_chained" "traditional_chained" "perfect_chained"
+#         "learned_cuckoo" "traditional_cuckoo")
 
 # Number of parallel processes to use
 if [ -z "$1" ] || [ "$1" -gt 9 ]; then
