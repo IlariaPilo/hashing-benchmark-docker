@@ -63,14 +63,10 @@ const std::vector<std::int64_t> datasets{
     static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::FB)
     };
 
-// const std::vector<std::int64_t> probe_distributions{
-//     static_cast<std::underlying_type_t<dataset::ProbingDistribution>>(
-//         dataset::ProbingDistribution::UNIFORM),
-//     static_cast<std::underlying_type_t<dataset::ProbingDistribution>>(
-//         dataset::ProbingDistribution::EXPONENTIAL_RANDOM),
-//     static_cast<std::underlying_type_t<dataset::ProbingDistribution>>(
-//         dataset::ProbingDistribution::EXPONENTIAL_SORTED)};
+// *********************************************************************** //
 
+// IMPORTANT - this is a benchmarked function
+// builds the hash table
 template <class Table>
 static void Construction(benchmark::State& state) {
   std::random_device rd;
@@ -78,14 +74,13 @@ static void Construction(benchmark::State& state) {
 
   // Extract variables
   const auto dataset_size = static_cast<size_t>(state.range(0));
-  const auto did = static_cast<dataset::ID>(state.range(1));
+  const auto did = static_cast<dataset::ID>(state.range(1));  // which dataset?
 
   // Generate data (keys & payloads) & probing set
   std::vector<std::pair<Key, Payload>> data;
   data.reserve(dataset_size);
   {
     auto keys = dataset::load_cached<Key>(did, dataset_size);
-
     std::transform(keys.begin(), keys.end(), std::back_inserter(data),
                    [](const Key& key) { return std::make_pair(key, key - 5); });
   }
@@ -102,7 +97,6 @@ static void Construction(benchmark::State& state) {
   std::string name;
   for (auto _ : state) {
     Table table(data);
-
     total_bytes = table.byte_size();
     directory_bytes = table.directory_byte_size();
     name = table.name();
@@ -117,16 +111,23 @@ static void Construction(benchmark::State& state) {
   state.SetLabel(name + ":" + dataset::name(did));
 }
 
+// *********************************************************************** //
+
 std::string previous_signature = "";
 std::vector<Key> probing_set{};
 void* prev_table = nullptr;
 std::function<void()> free_lambda = []() {};
 
+// *********************************************************************** //
+
+// IMPORTANT - this is a benchmarked function
+// queries (=probes) all values in the table
 template <class Table, size_t RangeSize>
 static void TableProbe(benchmark::State& state) {
   // Extract variables
   const auto dataset_size = static_cast<size_t>(state.range(0));
-  const auto did = static_cast<dataset::ID>(state.range(1));
+  const auto did = static_cast<dataset::ID>(state.range(1));      // which datasets?
+  // determines the distribution that will be used to get the probing order
   const auto probing_dist =
       static_cast<dataset::ProbingDistribution>(state.range(2));
 
@@ -142,23 +143,23 @@ static void TableProbe(benchmark::State& state) {
       std::string(typeid(Table).name()) + "_" + std::to_string(RangeSize) +
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
       dataset::name(probing_dist);
+
+  // if it is a new signature, it is time to initialize!
   if (previous_signature != signature) {
     std::cout << "performing setup... ";
     auto start = std::chrono::steady_clock::now();
-
     // Generate data (keys & payloads) & probing set
     std::vector<std::pair<Key, Payload>> data{};
     data.reserve(dataset_size);
     {
       auto keys = dataset::load_cached<Key>(did, dataset_size);
-
       std::transform(
           keys.begin(), keys.end(), std::back_inserter(data),
           [](const Key& key) { return std::make_pair(key, key - 5); });
       int succ_probability=100;
+      // generates a probing order for any dataset dataset, given a desired distribution
       probing_set = dataset::generate_probing_set(keys, probing_dist,succ_probability);
     }
-
     if (data.empty()) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
@@ -166,29 +167,31 @@ static void TableProbe(benchmark::State& state) {
       std::cout << "failed" << std::endl;
       return;
     }
-
     // build table
     if (prev_table != nullptr) free_lambda();
     prev_table = new Table(data);
     free_lambda = []() { delete ((Table*)prev_table); };
-
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
   }
+
   previous_signature = signature;
 
   assert(prev_table != nullptr);
   Table* table = (Table*)prev_table;
 
   size_t i = 0;
+
+  // start benchmarking!
   for (auto _ : state) {
     while (unlikely(i >= probing_set.size())) i -= probing_set.size();
     const auto searched = probing_set[i++];
 
     // Lower bound lookup
+    // Returns an iterator pointing to the payload for a given key or end() if no such key could be found
     auto it = table->operator[](
         searched);  // TODO: does this generate a 'call' op? =>
                     // https://stackoverflow.com/questions/10631283/how-will-i-know-whether-inline-function-is-actually-replaced-at-the-place-where
@@ -220,9 +223,11 @@ static void TableProbe(benchmark::State& state) {
                  dataset::name(probing_dist));
 }
 
+// *********************************************************************** //
 
-
-
+// IMPORTANT - this is a benchmarked function
+// queries (=probes) all values in the table. 
+// each query will be ranged (with range 10) with probability 1-percentage_of_point_queries/100
 template <class Table>
 static void TableMixedLookup(benchmark::State& state) {
   std::random_device rd;
@@ -251,32 +256,27 @@ static void TableMixedLookup(benchmark::State& state) {
   if (previous_signature != signature) {
     std::cout << "performing setup... ";
     auto start = std::chrono::steady_clock::now();
-
     // Generate data (keys & payloads) & probing set
     std::vector<std::pair<Key, Payload>> data{};
     data.reserve(dataset_size);
     {
       auto keys = dataset::load_cached<Key>(did, dataset_size);
-
       std::transform(
           keys.begin(), keys.end(), std::back_inserter(data),
           [](const Key& key) { return std::make_pair(key, key - 5); });
       int succ_probability=100;
       probing_set = dataset::generate_probing_set(keys, probing_dist,succ_probability);
     }
-
     if (data.empty()) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
       return;
     }
-
     // build table
     if (prev_table != nullptr) free_lambda();
     prev_table = new Table(data);
     free_lambda = []() { delete ((Table*)prev_table); };
-
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
@@ -289,6 +289,7 @@ static void TableMixedLookup(benchmark::State& state) {
   Table* table = (Table*)prev_table;
 
   // distribution
+  // we use this to generate a random value between 1 and 100
   std::uniform_int_distribution<size_t> point_query_dist(1, 100);
 
   size_t i = 0;
@@ -303,6 +304,7 @@ static void TableMixedLookup(benchmark::State& state) {
       benchmark::DoNotOptimize(lb_payload);
 
       // Chance based perform full range scan
+      // performs range query with probability 1-percentage_of_point_queries/100
       if (point_query_dist(rng) > percentage_of_point_queries) {
         ++it;
         Payload total = 0;
@@ -328,7 +330,10 @@ static void TableMixedLookup(benchmark::State& state) {
 }
 
 
+// *********************************************************************** //
 
+// IMPORTANT - this is a benchmarked function
+//
 template <class Table,size_t RangeSize>
 static void PointProbe(benchmark::State& state) {
   // Extract variables
@@ -336,7 +341,8 @@ static void PointProbe(benchmark::State& state) {
   const auto did = static_cast<dataset::ID>(state.range(1));
   const auto probing_dist =
       static_cast<dataset::ProbingDistribution>(state.range(2));
-   const auto succ_probability =
+  // TODO idk
+  const auto succ_probability =
       static_cast<size_t>(state.range(3)); 
          
 
@@ -353,29 +359,26 @@ static void PointProbe(benchmark::State& state) {
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
       dataset::name(probing_dist);
 
-  if(previous_signature!=signature) 
-  {
-    std::cout<<"Probing set size is: "<<probing_set.size()<<std::endl;
-    std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
-  }
+  // if(previous_signature!=signature) 
+  // {
+  //   std::cout<<"Probing set size is: "<<probing_set.size()<<std::endl;
+  //   std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
+  // }
      
   if (previous_signature != signature) {
     std::cout << "performing setup... ";
     auto start = std::chrono::steady_clock::now();
-
     // Generate data (keys & payloads) & probing set
     std::vector<std::pair<Key, Payload>> data{};
     data.reserve(dataset_size);
     {
       auto keys = dataset::load_cached<Key>(did, dataset_size);
-
       std::transform(
           keys.begin(), keys.end(), std::back_inserter(data),
           [](const Key& key) { return std::make_pair(key, key - 5); });
       // int succ_probability=100;
       probing_set = dataset::generate_probing_set(keys, probing_dist,succ_probability);
     }
-
     if (data.empty()) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
@@ -383,51 +386,43 @@ static void PointProbe(benchmark::State& state) {
       std::cout << "failed" << std::endl;
       return;
     }
-
     // build table
     if (prev_table != nullptr) free_lambda();
     prev_table = new Table(data);
     free_lambda = []() { delete ((Table*)prev_table); };
-
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
-    
+    // ------ this is extra wrt to TableProbe ------ //
     std::sort(data.begin(), data.end(),[](const auto& a, const auto& b) { return a.first < b.first; });
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
     // table->print_data_statistics();
-
     Table* table = (Table*)prev_table;
-
     table->print_data_statistics();
 
+    // TODO - these are useless? their scope finishes right after?
     uint64_t total_sum=0;
     uint64_t query_count=100000;
-
-    
-
+    // --------------------------------------------- //
   }
   
-
   assert(prev_table != nullptr);
   Table* table = (Table*)prev_table;
   previous_signature = signature;  
 
-
   size_t i = 0;
+  // benchmarking time!
   for (auto _ : state) {
     while (unlikely(i >= probing_set.size())) i -= probing_set.size();
     const auto searched = probing_set[i%probing_set.size()];
     i++;
 
     // Lower bound lookup
-    // auto it = table->useless_func();
-    auto it = table->operator[](searched);  // TODO: does this generate a 'call' op? =>
-                    // https://stackoverflow.com/questions/10631283/how-will-i-know-whether-inline-function-is-actually-replaced-at-the-place-where
-
+    auto it = table->operator[](searched);
     benchmark::DoNotOptimize(it);
+
     // __sync_synchronize();
     // full_mem_barrier;
   }
@@ -539,7 +534,6 @@ static void CollisionStats(benchmark::State& state) {
     __sync_synchronize();
     // full_mem_barrier;
   }
-
   // set counters (don't do this in inner loop to avoid tainting results)
   state.counters["table_bytes"] = table->byte_size();
   state.counters["table_directory_bytes"] = table->directory_byte_size();
@@ -553,14 +547,12 @@ static void CollisionStats(benchmark::State& state) {
                  dataset::name(probing_dist)+":"+temp);
 }
 
-
-
-
-
-
-
 using namespace masters_thesis;
 
+// defines a macro to register all functions with a different "Table" subclass
+// -- Construction
+// -- TableMixedLookup
+// -- TableProbe (0,1,10,20)  -> TODO: what are these numbers
 #define BM(Table)                                                              \
   BENCHMARK_TEMPLATE(Construction, Table)                                      \
       ->ArgsProduct({dataset_sizes, datasets});                                \

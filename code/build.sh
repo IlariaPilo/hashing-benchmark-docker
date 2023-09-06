@@ -1,9 +1,10 @@
 #!/bin/bash
 
 # Setup script
+# FIXME - get rid of this
+cd "$(dirname "$0")"
 source .env
 set -e
-cd "$(dirname "$0")"
 
 # Parse arguments
 TARGET=${1:-"benchmarks"}
