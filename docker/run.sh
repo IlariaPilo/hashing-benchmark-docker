@@ -13,12 +13,20 @@ output_dir="${BASE_DIR}/output"
 
 # Check if the user has provided an argument
 if [ $# -eq 0 ]; then
-  echo -e "\n\033[1;35m\tbash run.sh <input_dir> \033[0m"
+  echo -e "\n\033[1;35m\tbash run.sh <input_dir> [--fast] \033[0m"
   echo -e "Runs the previously built container."
-  echo -e "<input_dir> contains the directory where the datasets are [or will be] saved.\n"
+  echo -e "<input_dir> contains the directory where the datasets are [or will be] saved."
+  echo -e "Use the --fast [or -f] option to skip the checksum computation, for a faster run.\n"
   exit
 else
   input_dir=$(realpath $1)
+fi
+
+# check if fast option is inserted
+if [ $# -eq 2 ] && ( [ "$2" == "--fast" ] || [ "$2" == "-f" ] ); then
+    fast=true
+else
+    fast=false
 fi
 
 # mkdir -p $input_dir
@@ -37,8 +45,10 @@ if [[ $(ls $input_dir/{$fb,$osm,$wiki} 2>/dev/null | wc -l) -ne 3 ]]; then
         exit 1
     fi
 else
-  # check anyway (for checksum)
-  bash ${BASE_DIR}/scripts/setup_datasets.sh $input_dir
+  if [ "$fast" = false ]; then
+    # check anyway (for checksum)
+    bash ${BASE_DIR}/scripts/setup_datasets.sh $input_dir
+  fi
 fi
 
 docker run --rm -v $output_dir:/home/benchmarker/hashing-benchmark-docker/output \

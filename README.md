@@ -16,14 +16,15 @@ The repository can be cloned by running `git clone --recurse-submodules https://
 ## Use the Docker Image
 Build the Docker Image with:
 ```bash
-cd docker-benchmark
+cd docker
 bash build.sh
 ```
 If everything goes according to plans, the image can be later run with `bash run.sh`. The script is intended to be used as follows:
 ```bash
-bash run.sh <input_dir>
+bash run.sh <input_dir> [--fast]
 ```
 where `<input_dir>` refers to the directory storing the required datasets. 
+The `--fast` [or `-f`] option skips the checksum control for a faster (but less safe) run of the container.
 
 The script automatically checks whether the input directory actually contains the dataset. If it does not, you can choose to download them or to abort the program.
 
@@ -38,6 +39,7 @@ PASSWORD: password
 __*IMPORTANT:*__ never, ever, _ever_ update the package manager on the Docker container!
 
 ## Download the datasets
+<!-- TODO : maybe remove this part? -->
 If you don't want to use the container, and you prefer running the experiments on your native environment, you can use this utility to download and setup the datasets.
 
 In order to download the datasets used by the benchmark script, simply run:
