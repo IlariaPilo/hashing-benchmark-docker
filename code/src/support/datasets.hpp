@@ -186,7 +186,7 @@ std::vector<Data> load_cached(ID id, size_t dataset_size) {
 
       double constant=1.414;
 
-      for(int i=0;i<ds.size();i++)
+      for(size_t i=0;i<ds.size();i++)
       {
         uint64_t temp=i*std::pow(2, 40)/ds.size();
         uint64_t diff=0;
@@ -213,7 +213,7 @@ std::vector<Data> load_cached(ID id, size_t dataset_size) {
 
       double constant=2;
 
-      for(int i=0;i<ds.size();i++)
+      for(size_t i=0;i<ds.size();i++)
       {
         uint64_t temp=i*std::pow(2, 40)/ds.size();
         uint64_t diff=0;
@@ -240,7 +240,7 @@ std::vector<Data> load_cached(ID id, size_t dataset_size) {
 
       double constant=1.414;
 
-      for(int i=0;i<ds.size();i++)
+      for(size_t i=0;i<ds.size();i++)
       {
         uint64_t temp=i*std::pow(2, 40)/ds.size();
         uint64_t diff=0;
@@ -267,7 +267,7 @@ std::vector<Data> load_cached(ID id, size_t dataset_size) {
 
       double constant=2;
 
-      for(int i=0;i<ds.size();i++)
+      for(size_t i=0;i<ds.size();i++)
       {
         uint64_t temp=i*std::pow(2, 40)/ds.size();
         uint64_t diff=0;

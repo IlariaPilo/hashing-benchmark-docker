@@ -143,7 +143,7 @@ class KapilChainedModelHashTable {
 
     key_vec.resize(2*keys.size(),0);
     std::sort(keys.begin(),keys.end());
-    for(int i=0;i<keys.size();i++)
+    for(size_t i=0;i<keys.size();i++)
     {
       key_vec[2*i]=keys[i];
       key_vec[2*i+1]=1;
