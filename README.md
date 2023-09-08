@@ -1,5 +1,7 @@
 # Hashing Benchmarking [DOCKER]
 
+<!--TODO fix this intro-->
+
 This fork adds the following features:
 - Provide a Docker container to run the experiments in the proper environment;
 - Include scripts to download and prepare the datasets automatically;
@@ -15,7 +17,12 @@ To use this version of the repository, just follow these steps.
 ## 0 | Clone the repository
 The repository can be cloned by running `git clone --recurse-submodules https://github.com/IlariaPilo/hashing-benchmark-docker`.
 
-## 1 | Use the Docker Image
+## 1 | Setup
+### Docker Image [recommended]
+It is recommended to use the provided Docker Image to run the experiments, to avoid environment issues. 
+
+_[tested on Docker 23.0.1, Ubuntu 22.04]_ 
+
 Build the Docker Image with:
 ```bash
 cd docker
@@ -42,22 +49,29 @@ __*IMPORTANT:*__ never, ever, _ever_ update the package manager on the Docker co
 
 <!-- everything is fine -->
 
-## Download the datasets
-<!-- TODO : maybe remove this part? -->
-If you don't want to use the container, and you prefer running the experiments on your native environment, you can use this utility to download and setup the datasets.
-
-In order to download the datasets used by the benchmark script, simply run:
+### Native environment
+If you don't want to use the container, and you prefer running the experiments on your native environment, you can download and setup the datasets by simply running:
 ```sh
 cd scripts
 bash setup_datasets.sh <input_dir>
 ```
 where `<input_dir>` refers to the directory that will store the required datasets. 
 
-The script also patches the `/code/src/support/datasets.hpp`.
+The script also patches the [`/code/src/support/datasets.hpp`](/code/src/support/datasets.hpp) file.
 
-## Run the experiments
+*__This option is NOT recommended as the original code requires specific version requirements.__*
+
+## 2 | Run the experiments
+### Parameters configuration
+The default configuration runs using the original benchmark parameters as found [here](https://github.com/DominikHorn/hashing-benchmark/blob/main/benchmark.sh).
+
+To change them (or simply to check them out), refer to the [`/code/configs.hpp`](/code/configs.hpp) file.
+
+<!-- start from here -->
+
+### CONT'D
 To run the hash table experiments, use the following commands:
-```
+```sh
 cd scripts
 bash benchmark.sh <number_of_threads>
 ```
