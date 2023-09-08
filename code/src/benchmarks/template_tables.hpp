@@ -458,7 +458,6 @@ static void PointProbe(benchmark::State& state) {
 }
 
 
-
 template <class Table,size_t RangeSize>
 static void CollisionStats(benchmark::State& state) {
   // Extract variables
@@ -589,7 +588,6 @@ using namespace masters_thesis;
   BENCHMARK_TEMPLATE(TableProbe, Table, 20)                                    \
       ->ArgsProduct({dataset_sizes, datasets, probe_distributions});
 
-
 #define BenchmarkMonotone(BucketSize, Model)                    \
   using MonotoneHashtable##BucketSize##Model =                  \
       MonotoneHashtable<Key, Payload, BucketSize, Model>;       \
@@ -602,18 +600,11 @@ using namespace masters_thesis;
   using MMPHFTable##MMPHF = MMPHFTable<Key, Payload, MMPHF>; \
   BM(MMPHFTable##MMPHF);
 
-
 #define KAPILBM(Table)                                                              \
   BENCHMARK_TEMPLATE(PointProbe, Table, 0)                                     \
       ->ArgsProduct({dataset_sizes, datasets, probe_distributions,succ_probability});
 
-
-
-
 // ############################## Chaining ##############################
-// ############################## Chaining ##############################
-// ############################## Chaining ##############################
-
 
 #define BenchmarKapilChained(BucketSize,OverAlloc,HashFn)                           \
   using KapilChainedHashTable##BucketSize##OverAlloc##HashFn = KapilChainedHashTable<Key, Payload, BucketSize,OverAlloc, HashFn>; \
@@ -627,13 +618,9 @@ using namespace masters_thesis;
   using KapilChainedModelHashTable##BucketSize##OverAlloc##Model = KapilChainedModelHashTable<Key, Payload, BucketSize,OverAlloc, Model>; \
   KAPILBM(KapilChainedModelHashTable##BucketSize##OverAlloc##Model);
 
-
 const std::vector<std::int64_t> bucket_size_chain{1,2,4,8};
 const std::vector<std::int64_t> overalloc_chain{10,25,50,100};
 
-
-// ############################## LINEAR PROBING ##############################
-// ############################## LINEAR PROBING ##############################
 // ############################## LINEAR PROBING ##############################
 
 #define BenchmarKapilLinear(BucketSize,OverAlloc,HashFn)                           \
@@ -648,13 +635,7 @@ const std::vector<std::int64_t> overalloc_chain{10,25,50,100};
   using KapilLinearModelHashTable##BucketSize##OverAlloc##Model = KapilLinearModelHashTable<Key, Payload, BucketSize,OverAlloc, Model>; \
   KAPILBM(KapilLinearModelHashTable##BucketSize##OverAlloc##Model);
 
-
-
 // ############################## CUCKOO HASHING ##############################
-// ############################## CUCKOO HASHING ##############################
-// ############################## CUCKOO HASHING ##############################
-
-
 
 template <class Table,size_t RangeSize>
 static void PointProbeCuckoo(benchmark::State& state) {
@@ -797,20 +778,14 @@ static void PointProbeCuckoo(benchmark::State& state) {
                  dataset::name(probing_dist)+":"+temp);
 }
 
-
 #define KAPILBMCuckoo(Table)                                                              \
   BENCHMARK_TEMPLATE(PointProbeCuckoo, Table, 0)                                     \
       ->ArgsProduct({dataset_sizes, datasets, probe_distributions,succ_probability});
-
-
-
-
 
 #define BenchmarKapilCuckoo(BucketSize,OverAlloc,HashFn,KickingStrat)                           \
   using MURMUR1 = hashing::MurmurFinalizer<Key>; \
   using KapilCuckooHashTable##BucketSize##OverAlloc##HashFn##KickingStrat = kapilhashtable::KapilCuckooHashTable<Key, Payload, BucketSize,OverAlloc, HashFn, MURMUR1,KickingStrat>; \
   KAPILBMCuckoo(KapilCuckooHashTable##BucketSize##OverAlloc##HashFn##KickingStrat);
-
 
 #define BenchmarKapilCuckooModel(BucketSize,OverAlloc,Model,KickingStrat1)                           \
   using MURMUR1 = hashing::MurmurFinalizer<Key>; \
@@ -822,3 +797,125 @@ static void PointProbeCuckoo(benchmark::State& state) {
   using KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1 = kapilcuckooexotichashtable::KapilCuckooExoticHashTable<Key, Payload, BucketSize,OverAlloc, MMPHF, MURMUR1,KickingStrat1>; \
   KAPILBMCuckoo(KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1);
 
+// Define all PointProbe benchmarks
+
+using namespace config;
+
+// hash_line
+
+
+void kick_bench_line(CollisionCategories collision, HashF function, void* using_thing_TODO) {
+  // get hash type
+  HashCategories type = AVAILABLE_HASH_FUNCTIONS[function];
+  switch (collision) {
+    // ----------- LINEAR ----------- //
+    case CollisionCategories::LINEAR:
+      switch (type) {
+        case HashCategories::LEARNED:
+          // Linear Learned
+          for (auto overalloc : linear_config.overalloc) {
+            BenchmarKapilLinearModel(
+              linear_config.bucket_size,
+              overalloc,
+              using_thing_TODO
+            );
+          }
+          break;
+        case HashCategories::CLASSIC:
+          // Linear Classic
+          for (auto overalloc : linear_config.overalloc) {
+            BenchmarKapilLinear(
+              linear_config.bucket_size,
+              overalloc,
+              using_thing_TODO
+            );
+          }
+          break;
+        case HashCategories::PERFECT:
+          // Linear Perfect
+          for (auto overalloc : linear_config.overalloc) {
+            BenchmarKapilLinearExotic(
+              linear_config.bucket_size,
+              overalloc,
+              using_thing_TODO
+            );
+          }
+          break;
+      }
+      break;
+    // ----------- CHAINED ----------- //
+    case CollisionCategories::CHAINED:
+      switch (type) {
+        case HashCategories::LEARNED:
+            // Chained Learned
+            for (auto overalloc : chained_config.overalloc) {
+              BenchmarKapilLinearModel(
+                chained_config.bucket_size,
+                overalloc,
+                using_thing_TODO
+              );
+            }
+            break;
+          case HashCategories::CLASSIC:
+            // Chained Classic
+            for (auto overalloc : chained_config.overalloc) {
+              BenchmarKapilLinear(
+                chained_config.bucket_size,
+                overalloc,
+                using_thing_TODO
+              );
+            }
+            break;
+          case HashCategories::PERFECT:
+            // Chained Perfect
+            for (auto overalloc : chained_config.overalloc) {
+              BenchmarKapilLinearExotic(
+                linear_config.bucket_size,
+                overalloc,
+                using_thing_TODO
+              );
+            }
+            break;
+        }
+      break;
+    // ----------- CUCKOO ----------- //
+    case CollisionCategories::CUCKOO:
+      int bias = 
+      if(cuckoo_config.KICKING_BIAS == 0) {
+        switch (type) {
+        case HashCategories::LEARNED:
+          break;
+        case HashCategories::CLASSIC:
+          break;
+        case HashCategories::PERFECT:
+          break;
+      }
+      else {
+        int bias
+      }
+        
+      }
+
+      break;
+  }
+}
+
+
+
+
+
+for(HashF h_function : functions_config) {
+  switch (h_function) {
+    case HashF::MURMUR:
+      using MURMUR = hashing::MurmurFinalizer<Key>;
+
+      
+
+
+      break;
+    
+  }
+
+}
+
+}     // namespace _

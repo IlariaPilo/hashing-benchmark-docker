@@ -1,5 +1,7 @@
 #pragma once
 
+#include "configs.hpp"
+
 #include "include/mmphf_table.hpp"
 #include "include/monotone_hashtable.hpp"
 
@@ -18,7 +20,5 @@
 
 // Order is important
 #include "include/convenience/undef.hpp"
-
-#include "configs.hpp"
 
 #define PRINT 0

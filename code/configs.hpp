@@ -87,6 +87,7 @@ namespace config {
     // [ only for learned functions ]
     const int DEFAULT_MAX_MODELS = 100;
     const int DEFAULT_MAX_ERRORS = 1024;
+    const int num_radix_bits = 18;
 
     // LINEAR
     const int LINEAR_BUCKET_SIZE = DEFAULT_BUCKET_SIZE;
@@ -122,7 +123,7 @@ namespace config {
         int max_errors;
     };
 
-    const ConfigBM linear_config {
+    const ConfigBM linear_config = {
         CollisionCategories::LINEAR,
         LINEAR_BUCKET_SIZE,
         LINEAR_OVERALLOC,
@@ -131,7 +132,7 @@ namespace config {
         LINEAR_MAX_ERRORS
     };
 
-    const ConfigBM chained_config {
+    const ConfigBM chained_config = {
         CollisionCategories::CHAINED,
         CHAINED_BUCKET_SIZE,
         CHAINED_OVERALLOC,
@@ -140,7 +141,7 @@ namespace config {
         CHAINED_MAX_ERRORS
     };
     
-    const ConfigBM cuckoo_config {
+    const ConfigBM cuckoo_config = {
         CollisionCategories::CUCKOO,
         CUCKOO_BUCKET_SIZE,
         CUCKOO_OVERALLOC,
