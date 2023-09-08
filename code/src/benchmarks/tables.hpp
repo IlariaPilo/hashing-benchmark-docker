@@ -830,11 +830,11 @@ static void PointProbeCuckoo(benchmark::State& state) {
 	BenchmarKapilChainedModel(1,300,RMIHashChained);
 
 	// Cuckoo 
-	BenchmarKapilCuckooModel(4,34,RMIHashCuckoo);
-	BenchmarKapilCuckooModel(4,25,RMIHashCuckoo);
-	BenchmarKapilCuckooModel(4,17,RMIHashCuckoo);
-	BenchmarKapilCuckooModel(4,11,RMIHashCuckoo);
-	BenchmarKapilCuckooModel(4,5,RMIHashCuckoo);
+	BenchmarKapilCuckooModel(4,34,RMIHashCuckoo,KickingStrat);
+	BenchmarKapilCuckooModel(4,25,RMIHashCuckoo,KickingStrat);
+	BenchmarKapilCuckooModel(4,17,RMIHashCuckoo,KickingStrat);
+	BenchmarKapilCuckooModel(4,11,RMIHashCuckoo,KickingStrat);
+	BenchmarKapilCuckooModel(4,5,RMIHashCuckoo,KickingStrat);
 
 	// Linear 
 	BenchmarKapilLinearModel(1,34,RMIHashLinear);
@@ -856,11 +856,11 @@ static void PointProbeCuckoo(benchmark::State& state) {
 	BenchmarKapilChainedModel(1,300,RadixSplineHashChained);
 
 	// Cuckoo 
-	BenchmarKapilCuckooModel(4,34,RadixSplineHashCuckoo);
-	BenchmarKapilCuckooModel(4,25,RadixSplineHashCuckoo);
-	BenchmarKapilCuckooModel(4,17,RadixSplineHashCuckoo);
-	BenchmarKapilCuckooModel(4,11,RadixSplineHashCuckoo);
-	BenchmarKapilCuckooModel(4,5,RadixSplineHashCuckoo);
+	BenchmarKapilCuckooModel(4,34,RadixSplineHashCuckoo,KickingStrat);
+	BenchmarKapilCuckooModel(4,25,RadixSplineHashCuckoo,KickingStrat);
+	BenchmarKapilCuckooModel(4,17,RadixSplineHashCuckoo,KickingStrat);
+	BenchmarKapilCuckooModel(4,11,RadixSplineHashCuckoo,KickingStrat);
+	BenchmarKapilCuckooModel(4,5,RadixSplineHashCuckoo,KickingStrat);
 
 	// Linear 
 	BenchmarKapilLinearModel(1,34,RadixSplineHashLinear);
@@ -882,11 +882,11 @@ static void PointProbeCuckoo(benchmark::State& state) {
 	BenchmarKapilChained(1,300,MURMUR);
 
 	// Cuckoo 
-	BenchmarKapilCuckoo(4,34,MURMUR);
-	BenchmarKapilCuckoo(4,25,MURMUR);
-	BenchmarKapilCuckoo(4,17,MURMUR);
-	BenchmarKapilCuckoo(4,11,MURMUR);
-	BenchmarKapilCuckoo(4,5,MURMUR);
+	BenchmarKapilCuckoo(4,34,MURMUR,KickingStrat);
+	BenchmarKapilCuckoo(4,25,MURMUR,KickingStrat);
+	BenchmarKapilCuckoo(4,17,MURMUR,KickingStrat);
+	BenchmarKapilCuckoo(4,11,MURMUR,KickingStrat);
+	BenchmarKapilCuckoo(4,5,MURMUR,KickingStrat);
 
 	// Linear 
 	BenchmarKapilLinear(1,34,MURMUR);
@@ -908,11 +908,11 @@ static void PointProbeCuckoo(benchmark::State& state) {
 	BenchmarKapilChained(1,300,MultPrime64);
 
 	// Cuckoo 
-	BenchmarKapilCuckoo(4,34,MultPrime64);
-	BenchmarKapilCuckoo(4,25,MultPrime64);
-	BenchmarKapilCuckoo(4,17,MultPrime64);
-	BenchmarKapilCuckoo(4,11,MultPrime64);
-	BenchmarKapilCuckoo(4,5,MultPrime64);
+	BenchmarKapilCuckoo(4,34,MultPrime64,KickingStrat);
+	BenchmarKapilCuckoo(4,25,MultPrime64,KickingStrat);
+	BenchmarKapilCuckoo(4,17,MultPrime64,KickingStrat);
+	BenchmarKapilCuckoo(4,11,MultPrime64,KickingStrat);
+	BenchmarKapilCuckoo(4,5,MultPrime64,KickingStrat);
 
 	// Linear 
 	BenchmarKapilLinear(1,34,MultPrime64);
@@ -934,11 +934,11 @@ static void PointProbeCuckoo(benchmark::State& state) {
 	BenchmarKapilChained(1,300,FibonacciPrime64);
 
 	// Cuckoo 
-	BenchmarKapilCuckoo(4,34,FibonacciPrime64);
-	BenchmarKapilCuckoo(4,25,FibonacciPrime64);
-	BenchmarKapilCuckoo(4,17,FibonacciPrime64);
-	BenchmarKapilCuckoo(4,11,FibonacciPrime64);
-	BenchmarKapilCuckoo(4,5,FibonacciPrime64);
+	BenchmarKapilCuckoo(4,34,FibonacciPrime64,KickingStrat);
+	BenchmarKapilCuckoo(4,25,FibonacciPrime64,KickingStrat);
+	BenchmarKapilCuckoo(4,17,FibonacciPrime64,KickingStrat);
+	BenchmarKapilCuckoo(4,11,FibonacciPrime64,KickingStrat);
+	BenchmarKapilCuckoo(4,5,FibonacciPrime64,KickingStrat);
 
 	// Linear 
 	BenchmarKapilLinear(1,34,FibonacciPrime64);
@@ -960,11 +960,11 @@ static void PointProbeCuckoo(benchmark::State& state) {
 	BenchmarKapilChained(1,300,AquaHash);
 
 	// Cuckoo 
-	BenchmarKapilCuckoo(4,34,AquaHash);
-	BenchmarKapilCuckoo(4,25,AquaHash);
-	BenchmarKapilCuckoo(4,17,AquaHash);
-	BenchmarKapilCuckoo(4,11,AquaHash);
-	BenchmarKapilCuckoo(4,5,AquaHash);
+	BenchmarKapilCuckoo(4,34,AquaHash,KickingStrat);
+	BenchmarKapilCuckoo(4,25,AquaHash,KickingStrat);
+	BenchmarKapilCuckoo(4,17,AquaHash,KickingStrat);
+	BenchmarKapilCuckoo(4,11,AquaHash,KickingStrat);
+	BenchmarKapilCuckoo(4,5,AquaHash,KickingStrat);
 
 	// Linear 
 	BenchmarKapilLinear(1,34,AquaHash);
@@ -986,11 +986,11 @@ static void PointProbeCuckoo(benchmark::State& state) {
 	BenchmarKapilChained(1,300,XXHash3);
 
 	// Cuckoo 
-	BenchmarKapilCuckoo(4,34,XXHash3);
-	BenchmarKapilCuckoo(4,25,XXHash3);
-	BenchmarKapilCuckoo(4,17,XXHash3);
-	BenchmarKapilCuckoo(4,11,XXHash3);
-	BenchmarKapilCuckoo(4,5,XXHash3);
+	BenchmarKapilCuckoo(4,34,XXHash3,KickingStrat);
+	BenchmarKapilCuckoo(4,25,XXHash3,KickingStrat);
+	BenchmarKapilCuckoo(4,17,XXHash3,KickingStrat);
+	BenchmarKapilCuckoo(4,11,XXHash3,KickingStrat);
+	BenchmarKapilCuckoo(4,5,XXHash3,KickingStrat);
 
 	// Linear 
 	BenchmarKapilLinear(1,34,XXHash3);
@@ -1012,11 +1012,11 @@ static void PointProbeCuckoo(benchmark::State& state) {
 	BenchmarKapilChainedExotic(1,300,MWHC);
 
 	// Cuckoo 
-	BenchmarKapilCuckooExotic(4,34,MWHC);
-	BenchmarKapilCuckooExotic(4,25,MWHC);
-	BenchmarKapilCuckooExotic(4,17,MWHC);
-	BenchmarKapilCuckooExotic(4,11,MWHC);
-	BenchmarKapilCuckooExotic(4,5,MWHC);
+	BenchmarKapilCuckooExotic(4,34,MWHC,KickingStrat);
+	BenchmarKapilCuckooExotic(4,25,MWHC,KickingStrat);
+	BenchmarKapilCuckooExotic(4,17,MWHC,KickingStrat);
+	BenchmarKapilCuckooExotic(4,11,MWHC,KickingStrat);
+	BenchmarKapilCuckooExotic(4,5,MWHC,KickingStrat);
 
 	// Linear 
 	BenchmarKapilLinearExotic(1,34,MWHC);
@@ -1038,11 +1038,11 @@ static void PointProbeCuckoo(benchmark::State& state) {
 	BenchmarKapilChainedExotic(1,300,BitMWHC);
 
 	// Cuckoo 
-	BenchmarKapilCuckooExotic(4,34,BitMWHC);
-	BenchmarKapilCuckooExotic(4,25,BitMWHC);
-	BenchmarKapilCuckooExotic(4,17,BitMWHC);
-	BenchmarKapilCuckooExotic(4,11,BitMWHC);
-	BenchmarKapilCuckooExotic(4,5,BitMWHC);
+	BenchmarKapilCuckooExotic(4,34,BitMWHC,KickingStrat);
+	BenchmarKapilCuckooExotic(4,25,BitMWHC,KickingStrat);
+	BenchmarKapilCuckooExotic(4,17,BitMWHC,KickingStrat);
+	BenchmarKapilCuckooExotic(4,11,BitMWHC,KickingStrat);
+	BenchmarKapilCuckooExotic(4,5,BitMWHC,KickingStrat);
 
 	// Linear 
 	BenchmarKapilLinearExotic(1,34,BitMWHC);

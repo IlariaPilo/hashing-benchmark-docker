@@ -88,7 +88,7 @@ def bench_line(f: HashF,collision_config: ConfigBM):
         ans_str+="\tBenchmarKapil"+collision_strategy+f_type_str+"("+str(bucket_size)+","+str(overalloc)+","+f_name
         if f_type == HashCategories.LEARNED:
             ans_str+=collision_strategy
-        if collision_strategy == CollisionCategories.CUCKOO:
+        if collision_strategy == "Cuckoo":
             ans_str+=",KickingStrat);\n"
         else:
             ans_str+=");\n"
