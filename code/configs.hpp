@@ -7,7 +7,19 @@
 
 using namespace std;
 
-/* explain here */
+/* 
+
+------------------ configs.hpp ------------------
+This file can be used to modify the benchmark parameters.
+Parameters are separated in two groups:
+- hash functions
+- collision strategy specific parameters
+Each benchmark will be executed
+    for all hash functions
+        for all collision strategies
+            for all overalloc values
+
+ */
 
 namespace config {
 
@@ -21,13 +33,13 @@ namespace config {
         LINEAR,     // 0
         CHAINED,    // 1
         CUCKOO      // 2
-    }
+    };
 
     enum HashF {
         RMIHash, RadixSplineHash, PGMHash,
         MURMUR, MultPrime64, FibonacciPrime64, AquaHash, XXHash3,
         MWHC, BitMWHC, RecSplit
-    }
+    };
 
     const unordered_map<HashF, HashCategories> AVAILABLE_HASH_FUNCTIONS = {
         // LEARNED
@@ -49,7 +61,7 @@ namespace config {
     };
 
 
-    // ========= START - modify this constants as you wish ========= //
+    // ========= START - modify these constants as you wish ========= //
 
     /* ------ HASH FUNCTIONS ------
     All the available hash functions are displayed in the AVAILABLE_HASH_FUNCTION dictionary.

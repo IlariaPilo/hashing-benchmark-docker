@@ -19,4 +19,6 @@
 // Order is important
 #include "include/convenience/undef.hpp"
 
+#include "configs.hpp"
+
 #define PRINT 0
