@@ -15,7 +15,10 @@ __*[ Up to now, only hash table experiment support ]*__
 To use this version of the repository, just follow these steps.
 
 ## 0 | Clone the repository
-The repository can be cloned by running `git clone --recurse-submodules https://github.com/IlariaPilo/hashing-benchmark-docker`.
+The repository can be cloned by running: 
+```sh
+git clone --recurse-submodules https://github.com/IlariaPilo/hashing-benchmark-docker
+```
 
 ## 1 | Setup
 ### Docker Image [recommended]
