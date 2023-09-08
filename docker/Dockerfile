@@ -29,8 +29,8 @@ USER benchmarker
 
 WORKDIR /home/benchmarker
 
-ADD https://api.github.com/repos/IlariaPilo/hashing-benchmark-docker/git/refs/heads/main version.json
-RUN git clone --recurse-submodules  https://github.com/IlariaPilo/hashing-benchmark-docker
+# ADD https://api.github.com/repos/IlariaPilo/hashing-benchmark-docker/git/refs/heads/main version.json
+# RUN git clone --recurse-submodules  https://github.com/IlariaPilo/hashing-benchmark-docker
 # Install python dependencies
 # RUN cd hashing-benchmark-docker && \
 #    pip install --no-cache-dir -r requirements.txt
