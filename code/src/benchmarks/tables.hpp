@@ -59,7 +59,7 @@ const std::vector<std::int64_t> datasets{
     static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::UNIFORM),
     static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::NORMAL),
     static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::SEQUENTIAL),
-    static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::OSM),   // TODO - put back to commented
+    // static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::OSM),
     static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::FB)
     };
 
@@ -441,8 +441,7 @@ static void PointProbe(benchmark::State& state) {
     benchmark::DoNotOptimize(it);
 
     // __sync_synchronize();
-    // TODO - put back to commented
-    full_mem_barrier;
+    // full_mem_barrier;
   }
 
   // set counters (don't do this in inner loop to avoid tainting results)
@@ -457,7 +456,6 @@ static void PointProbe(benchmark::State& state) {
   state.SetLabel(table->name() + ":" + dataset::name(did) + ":" +
                  dataset::name(probing_dist)+":"+temp);
 }
-
 
 
 template <class Table,size_t RangeSize>
@@ -590,7 +588,6 @@ using namespace masters_thesis;
   BENCHMARK_TEMPLATE(TableProbe, Table, 20)                                    \
       ->ArgsProduct({dataset_sizes, datasets, probe_distributions});
 
-
 #define BenchmarkMonotone(BucketSize, Model)                    \
   using MonotoneHashtable##BucketSize##Model =                  \
       MonotoneHashtable<Key, Payload, BucketSize, Model>;       \
@@ -603,18 +600,11 @@ using namespace masters_thesis;
   using MMPHFTable##MMPHF = MMPHFTable<Key, Payload, MMPHF>; \
   BM(MMPHFTable##MMPHF);
 
-
 #define KAPILBM(Table)                                                              \
   BENCHMARK_TEMPLATE(PointProbe, Table, 0)                                     \
       ->ArgsProduct({dataset_sizes, datasets, probe_distributions,succ_probability});
 
-
-
-
 // ############################## Chaining ##############################
-// ############################## Chaining ##############################
-// ############################## Chaining ##############################
-
 
 #define BenchmarKapilChained(BucketSize,OverAlloc,HashFn)                           \
   using KapilChainedHashTable##BucketSize##OverAlloc##HashFn = KapilChainedHashTable<Key, Payload, BucketSize,OverAlloc, HashFn>; \
@@ -628,13 +618,9 @@ using namespace masters_thesis;
   using KapilChainedModelHashTable##BucketSize##OverAlloc##Model = KapilChainedModelHashTable<Key, Payload, BucketSize,OverAlloc, Model>; \
   KAPILBM(KapilChainedModelHashTable##BucketSize##OverAlloc##Model);
 
-
 const std::vector<std::int64_t> bucket_size_chain{1,2,4,8};
 const std::vector<std::int64_t> overalloc_chain{10,25,50,100};
 
-
-// ############################## LINEAR PROBING ##############################
-// ############################## LINEAR PROBING ##############################
 // ############################## LINEAR PROBING ##############################
 
 #define BenchmarKapilLinear(BucketSize,OverAlloc,HashFn)                           \
@@ -649,13 +635,7 @@ const std::vector<std::int64_t> overalloc_chain{10,25,50,100};
   using KapilLinearModelHashTable##BucketSize##OverAlloc##Model = KapilLinearModelHashTable<Key, Payload, BucketSize,OverAlloc, Model>; \
   KAPILBM(KapilLinearModelHashTable##BucketSize##OverAlloc##Model);
 
-
-
 // ############################## CUCKOO HASHING ##############################
-// ############################## CUCKOO HASHING ##############################
-// ############################## CUCKOO HASHING ##############################
-
-
 
 template <class Table,size_t RangeSize>
 static void PointProbeCuckoo(benchmark::State& state) {
@@ -798,20 +778,14 @@ static void PointProbeCuckoo(benchmark::State& state) {
                  dataset::name(probing_dist)+":"+temp);
 }
 
-
 #define KAPILBMCuckoo(Table)                                                              \
   BENCHMARK_TEMPLATE(PointProbeCuckoo, Table, 0)                                     \
       ->ArgsProduct({dataset_sizes, datasets, probe_distributions,succ_probability});
-
-
-
-
 
 #define BenchmarKapilCuckoo(BucketSize,OverAlloc,HashFn,KickingStrat)                           \
   using MURMUR1 = hashing::MurmurFinalizer<Key>; \
   using KapilCuckooHashTable##BucketSize##OverAlloc##HashFn##KickingStrat = kapilhashtable::KapilCuckooHashTable<Key, Payload, BucketSize,OverAlloc, HashFn, MURMUR1,KickingStrat>; \
   KAPILBMCuckoo(KapilCuckooHashTable##BucketSize##OverAlloc##HashFn##KickingStrat);
-
 
 #define BenchmarKapilCuckooModel(BucketSize,OverAlloc,Model,KickingStrat1)                           \
   using MURMUR1 = hashing::MurmurFinalizer<Key>; \
@@ -823,10 +797,259 @@ static void PointProbeCuckoo(benchmark::State& state) {
   using KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1 = kapilcuckooexotichashtable::KapilCuckooExoticHashTable<Key, Payload, BucketSize,OverAlloc, MMPHF, MURMUR1,KickingStrat1>; \
   KAPILBMCuckoo(KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1);
 
-using RMIHash = learned_hashing::RMIHash<std::uint64_t,100>;
+// ******************* from now on, it's going to be automatic generated code ******************* //
 
-BenchmarKapilLinearModel(1,82,RMIHash);
+	// Kicking strategy (for Cuckoo)
+	using KickingStrat = kapilmodelhashtable::KapilModelBiasedKicking<5>;
+
+	// Function aliases definition
+	using RMIHashChained = learned_hashing::RMIHash<std::uint64_t,100>;
+	using RMIHashCuckoo = learned_hashing::RMIHash<std::uint64_t,100000>;
+	using RMIHashLinear = learned_hashing::RMIHash<std::uint64_t,100>;
+	using RadixSplineHashChained = learned_hashing::RadixSplineHash<std::uint64_t,18,1024,100000000>;
+	using RadixSplineHashCuckoo = learned_hashing::RadixSplineHash<std::uint64_t,18,32,100000000>;
+	using RadixSplineHashLinear = learned_hashing::RadixSplineHash<std::uint64_t,18,1024,100000000>;
+	using MURMUR = hashing::MurmurFinalizer<Key>;
+	using MultPrime64 = hashing::MultPrime64;
+	using FibonacciPrime64 = hashing::FibonacciPrime64;
+	using AquaHash = hashing::AquaHash<Key>;
+	using XXHash3 = hashing::XXHash3<Key>;
+	using MWHC = exotic_hashing::MWHC<Key>;
+	using BitMWHC = exotic_hashing::BitMWHC<Key>;
+
+	// Benchmarks definitions
+
+	// --------------- RMIHash --------------- // 
+	// Chained 
+	BenchmarKapilChainedModel(1,10050,RMIHashChained);
+	BenchmarKapilChainedModel(1,10067,RMIHashChained);
+	BenchmarKapilChainedModel(1,10080,RMIHashChained);
+	BenchmarKapilChainedModel(1,0,RMIHashChained);
+	BenchmarKapilChainedModel(1,34,RMIHashChained);
+	BenchmarKapilChainedModel(1,100,RMIHashChained);
+	BenchmarKapilChainedModel(1,300,RMIHashChained);
+
+	// Cuckoo 
+	BenchmarKapilCuckooModel(4,34,RMIHashCuckoo);
+	BenchmarKapilCuckooModel(4,25,RMIHashCuckoo);
+	BenchmarKapilCuckooModel(4,17,RMIHashCuckoo);
+	BenchmarKapilCuckooModel(4,11,RMIHashCuckoo);
+	BenchmarKapilCuckooModel(4,5,RMIHashCuckoo);
+
+	// Linear 
+	BenchmarKapilLinearModel(1,34,RMIHashLinear);
+	BenchmarKapilLinearModel(1,54,RMIHashLinear);
+	BenchmarKapilLinearModel(1,82,RMIHashLinear);
+	BenchmarKapilLinearModel(1,122,RMIHashLinear);
+	BenchmarKapilLinearModel(1,185,RMIHashLinear);
+	BenchmarKapilLinearModel(1,300,RMIHashLinear);
 
 
+	// --------------- RadixSplineHash --------------- // 
+	// Chained 
+	BenchmarKapilChainedModel(1,10050,RadixSplineHashChained);
+	BenchmarKapilChainedModel(1,10067,RadixSplineHashChained);
+	BenchmarKapilChainedModel(1,10080,RadixSplineHashChained);
+	BenchmarKapilChainedModel(1,0,RadixSplineHashChained);
+	BenchmarKapilChainedModel(1,34,RadixSplineHashChained);
+	BenchmarKapilChainedModel(1,100,RadixSplineHashChained);
+	BenchmarKapilChainedModel(1,300,RadixSplineHashChained);
 
-}  // namespace _
+	// Cuckoo 
+	BenchmarKapilCuckooModel(4,34,RadixSplineHashCuckoo);
+	BenchmarKapilCuckooModel(4,25,RadixSplineHashCuckoo);
+	BenchmarKapilCuckooModel(4,17,RadixSplineHashCuckoo);
+	BenchmarKapilCuckooModel(4,11,RadixSplineHashCuckoo);
+	BenchmarKapilCuckooModel(4,5,RadixSplineHashCuckoo);
+
+	// Linear 
+	BenchmarKapilLinearModel(1,34,RadixSplineHashLinear);
+	BenchmarKapilLinearModel(1,54,RadixSplineHashLinear);
+	BenchmarKapilLinearModel(1,82,RadixSplineHashLinear);
+	BenchmarKapilLinearModel(1,122,RadixSplineHashLinear);
+	BenchmarKapilLinearModel(1,185,RadixSplineHashLinear);
+	BenchmarKapilLinearModel(1,300,RadixSplineHashLinear);
+
+
+	// --------------- MURMUR --------------- // 
+	// Chained 
+	BenchmarKapilChained(1,10050,MURMUR);
+	BenchmarKapilChained(1,10067,MURMUR);
+	BenchmarKapilChained(1,10080,MURMUR);
+	BenchmarKapilChained(1,0,MURMUR);
+	BenchmarKapilChained(1,34,MURMUR);
+	BenchmarKapilChained(1,100,MURMUR);
+	BenchmarKapilChained(1,300,MURMUR);
+
+	// Cuckoo 
+	BenchmarKapilCuckoo(4,34,MURMUR);
+	BenchmarKapilCuckoo(4,25,MURMUR);
+	BenchmarKapilCuckoo(4,17,MURMUR);
+	BenchmarKapilCuckoo(4,11,MURMUR);
+	BenchmarKapilCuckoo(4,5,MURMUR);
+
+	// Linear 
+	BenchmarKapilLinear(1,34,MURMUR);
+	BenchmarKapilLinear(1,54,MURMUR);
+	BenchmarKapilLinear(1,82,MURMUR);
+	BenchmarKapilLinear(1,122,MURMUR);
+	BenchmarKapilLinear(1,185,MURMUR);
+	BenchmarKapilLinear(1,300,MURMUR);
+
+
+	// --------------- MultPrime64 --------------- // 
+	// Chained 
+	BenchmarKapilChained(1,10050,MultPrime64);
+	BenchmarKapilChained(1,10067,MultPrime64);
+	BenchmarKapilChained(1,10080,MultPrime64);
+	BenchmarKapilChained(1,0,MultPrime64);
+	BenchmarKapilChained(1,34,MultPrime64);
+	BenchmarKapilChained(1,100,MultPrime64);
+	BenchmarKapilChained(1,300,MultPrime64);
+
+	// Cuckoo 
+	BenchmarKapilCuckoo(4,34,MultPrime64);
+	BenchmarKapilCuckoo(4,25,MultPrime64);
+	BenchmarKapilCuckoo(4,17,MultPrime64);
+	BenchmarKapilCuckoo(4,11,MultPrime64);
+	BenchmarKapilCuckoo(4,5,MultPrime64);
+
+	// Linear 
+	BenchmarKapilLinear(1,34,MultPrime64);
+	BenchmarKapilLinear(1,54,MultPrime64);
+	BenchmarKapilLinear(1,82,MultPrime64);
+	BenchmarKapilLinear(1,122,MultPrime64);
+	BenchmarKapilLinear(1,185,MultPrime64);
+	BenchmarKapilLinear(1,300,MultPrime64);
+
+
+	// --------------- FibonacciPrime64 --------------- // 
+	// Chained 
+	BenchmarKapilChained(1,10050,FibonacciPrime64);
+	BenchmarKapilChained(1,10067,FibonacciPrime64);
+	BenchmarKapilChained(1,10080,FibonacciPrime64);
+	BenchmarKapilChained(1,0,FibonacciPrime64);
+	BenchmarKapilChained(1,34,FibonacciPrime64);
+	BenchmarKapilChained(1,100,FibonacciPrime64);
+	BenchmarKapilChained(1,300,FibonacciPrime64);
+
+	// Cuckoo 
+	BenchmarKapilCuckoo(4,34,FibonacciPrime64);
+	BenchmarKapilCuckoo(4,25,FibonacciPrime64);
+	BenchmarKapilCuckoo(4,17,FibonacciPrime64);
+	BenchmarKapilCuckoo(4,11,FibonacciPrime64);
+	BenchmarKapilCuckoo(4,5,FibonacciPrime64);
+
+	// Linear 
+	BenchmarKapilLinear(1,34,FibonacciPrime64);
+	BenchmarKapilLinear(1,54,FibonacciPrime64);
+	BenchmarKapilLinear(1,82,FibonacciPrime64);
+	BenchmarKapilLinear(1,122,FibonacciPrime64);
+	BenchmarKapilLinear(1,185,FibonacciPrime64);
+	BenchmarKapilLinear(1,300,FibonacciPrime64);
+
+
+	// --------------- AquaHash --------------- // 
+	// Chained 
+	BenchmarKapilChained(1,10050,AquaHash);
+	BenchmarKapilChained(1,10067,AquaHash);
+	BenchmarKapilChained(1,10080,AquaHash);
+	BenchmarKapilChained(1,0,AquaHash);
+	BenchmarKapilChained(1,34,AquaHash);
+	BenchmarKapilChained(1,100,AquaHash);
+	BenchmarKapilChained(1,300,AquaHash);
+
+	// Cuckoo 
+	BenchmarKapilCuckoo(4,34,AquaHash);
+	BenchmarKapilCuckoo(4,25,AquaHash);
+	BenchmarKapilCuckoo(4,17,AquaHash);
+	BenchmarKapilCuckoo(4,11,AquaHash);
+	BenchmarKapilCuckoo(4,5,AquaHash);
+
+	// Linear 
+	BenchmarKapilLinear(1,34,AquaHash);
+	BenchmarKapilLinear(1,54,AquaHash);
+	BenchmarKapilLinear(1,82,AquaHash);
+	BenchmarKapilLinear(1,122,AquaHash);
+	BenchmarKapilLinear(1,185,AquaHash);
+	BenchmarKapilLinear(1,300,AquaHash);
+
+
+	// --------------- XXHash3 --------------- // 
+	// Chained 
+	BenchmarKapilChained(1,10050,XXHash3);
+	BenchmarKapilChained(1,10067,XXHash3);
+	BenchmarKapilChained(1,10080,XXHash3);
+	BenchmarKapilChained(1,0,XXHash3);
+	BenchmarKapilChained(1,34,XXHash3);
+	BenchmarKapilChained(1,100,XXHash3);
+	BenchmarKapilChained(1,300,XXHash3);
+
+	// Cuckoo 
+	BenchmarKapilCuckoo(4,34,XXHash3);
+	BenchmarKapilCuckoo(4,25,XXHash3);
+	BenchmarKapilCuckoo(4,17,XXHash3);
+	BenchmarKapilCuckoo(4,11,XXHash3);
+	BenchmarKapilCuckoo(4,5,XXHash3);
+
+	// Linear 
+	BenchmarKapilLinear(1,34,XXHash3);
+	BenchmarKapilLinear(1,54,XXHash3);
+	BenchmarKapilLinear(1,82,XXHash3);
+	BenchmarKapilLinear(1,122,XXHash3);
+	BenchmarKapilLinear(1,185,XXHash3);
+	BenchmarKapilLinear(1,300,XXHash3);
+
+
+	// --------------- MWHC --------------- // 
+	// Chained 
+	BenchmarKapilChainedExotic(1,10050,MWHC);
+	BenchmarKapilChainedExotic(1,10067,MWHC);
+	BenchmarKapilChainedExotic(1,10080,MWHC);
+	BenchmarKapilChainedExotic(1,0,MWHC);
+	BenchmarKapilChainedExotic(1,34,MWHC);
+	BenchmarKapilChainedExotic(1,100,MWHC);
+	BenchmarKapilChainedExotic(1,300,MWHC);
+
+	// Cuckoo 
+	BenchmarKapilCuckooExotic(4,34,MWHC);
+	BenchmarKapilCuckooExotic(4,25,MWHC);
+	BenchmarKapilCuckooExotic(4,17,MWHC);
+	BenchmarKapilCuckooExotic(4,11,MWHC);
+	BenchmarKapilCuckooExotic(4,5,MWHC);
+
+	// Linear 
+	BenchmarKapilLinearExotic(1,34,MWHC);
+	BenchmarKapilLinearExotic(1,54,MWHC);
+	BenchmarKapilLinearExotic(1,82,MWHC);
+	BenchmarKapilLinearExotic(1,122,MWHC);
+	BenchmarKapilLinearExotic(1,185,MWHC);
+	BenchmarKapilLinearExotic(1,300,MWHC);
+
+
+	// --------------- BitMWHC --------------- // 
+	// Chained 
+	BenchmarKapilChainedExotic(1,10050,BitMWHC);
+	BenchmarKapilChainedExotic(1,10067,BitMWHC);
+	BenchmarKapilChainedExotic(1,10080,BitMWHC);
+	BenchmarKapilChainedExotic(1,0,BitMWHC);
+	BenchmarKapilChainedExotic(1,34,BitMWHC);
+	BenchmarKapilChainedExotic(1,100,BitMWHC);
+	BenchmarKapilChainedExotic(1,300,BitMWHC);
+
+	// Cuckoo 
+	BenchmarKapilCuckooExotic(4,34,BitMWHC);
+	BenchmarKapilCuckooExotic(4,25,BitMWHC);
+	BenchmarKapilCuckooExotic(4,17,BitMWHC);
+	BenchmarKapilCuckooExotic(4,11,BitMWHC);
+	BenchmarKapilCuckooExotic(4,5,BitMWHC);
+
+	// Linear 
+	BenchmarKapilLinearExotic(1,34,BitMWHC);
+	BenchmarKapilLinearExotic(1,54,BitMWHC);
+	BenchmarKapilLinearExotic(1,82,BitMWHC);
+	BenchmarKapilLinearExotic(1,122,BitMWHC);
+	BenchmarKapilLinearExotic(1,185,BitMWHC);
+	BenchmarKapilLinearExotic(1,300,BitMWHC);
+
+}	// namespace _
