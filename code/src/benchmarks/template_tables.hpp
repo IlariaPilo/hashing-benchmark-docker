@@ -413,9 +413,8 @@ static void PointProbe(benchmark::State& state) {
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
     #endif
 
-    Table* table = (Table*)prev_table;
-
     #if PRINT
+    Table* table = (Table*)prev_table;
     table->print_data_statistics();
     #endif
 
