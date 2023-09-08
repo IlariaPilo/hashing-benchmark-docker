@@ -787,12 +787,12 @@ static void PointProbeCuckoo(benchmark::State& state) {
   using KapilCuckooHashTable##BucketSize##OverAlloc##HashFn##KickingStrat = kapilhashtable::KapilCuckooHashTable<Key, Payload, BucketSize,OverAlloc, HashFn, MURMUR1,KickingStrat>; \
   KAPILBMCuckoo(KapilCuckooHashTable##BucketSize##OverAlloc##HashFn##KickingStrat);
 
-#define BenchmarKapilCuckooModel(BucketSize,OverAlloc,Model,KickingStrat1)                           \
+#define BenchmarKapilCuckooModel(BucketSize,OverAlloc,HashFn,KickingStrat1)                           \
   using MURMUR1 = hashing::MurmurFinalizer<Key>; \
   using KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1 = kapilmodelhashtable::KapilCuckooModelHashTable<Key, Payload, BucketSize,OverAlloc, Model, MURMUR1,KickingStrat1>; \
   KAPILBMCuckoo(KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1);
 
-#define BenchmarKapilCuckooExotic(BucketSize,OverAlloc,MMPHF,KickingStrat1)                           \
+#define BenchmarKapilCuckooExotic(BucketSize,OverAlloc,HashFn,KickingStrat1)                           \
   using MURMUR1 = hashing::MurmurFinalizer<Key>; \
   using KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1 = kapilcuckooexotichashtable::KapilCuckooExoticHashTable<Key, Payload, BucketSize,OverAlloc, MMPHF, MURMUR1,KickingStrat1>; \
   KAPILBMCuckoo(KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1);
