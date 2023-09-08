@@ -1,7 +1,5 @@
 #pragma once
 
-#include "configs.hpp"
-
 #include "include/mmphf_table.hpp"
 #include "include/monotone_hashtable.hpp"
 

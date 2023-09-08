@@ -68,7 +68,7 @@ The script also patches the [`/code/src/support/datasets.hpp`](/code/src/support
 ### Parameters configuration
 The default configuration runs using the original benchmark parameters as found [here](https://github.com/DominikHorn/hashing-benchmark/blob/main/benchmark.sh).
 
-To change them (or simply to check them out), refer to the [`/code/configs.hpp`](/code/configs.hpp) file.
+To change them (or simply to check them out), refer to the [`/configs.py`](/configs.py) file.
 
 <!-- start from here -->
 
