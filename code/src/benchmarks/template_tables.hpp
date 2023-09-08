@@ -611,8 +611,8 @@ using namespace masters_thesis;
   KAPILBM(KapilChainedHashTable##BucketSize##OverAlloc##HashFn);
 
 #define BenchmarKapilChainedExotic(BucketSize,OverAlloc,MMPHF)                           \
-  using KapilChainedExoticHashTable##BucketSize##MMPHF = KapilChainedExoticHashTable<Key, Payload, BucketSize,OverAlloc, MMPHF>; \
-  KAPILBM(KapilChainedExoticHashTable##BucketSize##MMPHF);
+  using KapilChainedExoticHashTable##BucketSize##OverAlloc##MMPHF = KapilChainedExoticHashTable<Key, Payload, BucketSize,OverAlloc, MMPHF>; \
+  KAPILBM(KapilChainedExoticHashTable##BucketSize##OverAlloc##MMPHF);
 
 #define BenchmarKapilChainedModel(BucketSize,OverAlloc,Model)                           \
   using KapilChainedModelHashTable##BucketSize##OverAlloc##Model = KapilChainedModelHashTable<Key, Payload, BucketSize,OverAlloc, Model>; \
@@ -628,8 +628,8 @@ const std::vector<std::int64_t> overalloc_chain{10,25,50,100};
   KAPILBM(KapilLinearHashTable##BucketSize##OverAlloc##HashFn);
 
 #define BenchmarKapilLinearExotic(BucketSize,OverAlloc,MMPHF)                           \
-  using KapilLinearExoticHashTable##BucketSize##MMPHF = KapilLinearExoticHashTable<Key, Payload, BucketSize,OverAlloc, MMPHF>; \
-  KAPILBM(KapilLinearExoticHashTable##BucketSize##MMPHF);
+  using KapilLinearExoticHashTable##BucketSize##OverAlloc##MMPHF = KapilLinearExoticHashTable<Key, Payload, BucketSize,OverAlloc, MMPHF>; \
+  KAPILBM(KapilLinearExoticHashTable##BucketSize##OverAlloc##MMPHF);
 
 #define BenchmarKapilLinearModel(BucketSize,OverAlloc,Model)                           \
   using KapilLinearModelHashTable##BucketSize##OverAlloc##Model = KapilLinearModelHashTable<Key, Payload, BucketSize,OverAlloc, Model>; \
