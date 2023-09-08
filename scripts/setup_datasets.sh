@@ -89,5 +89,4 @@ download_dataset "wiki_ts_200M_uint64" $data_dir $url_wiki $check_wiki
 download_dataset "osm_cellids_200M_uint64" $data_dir $url_osm $check_osm
 
 # Patch the /src/support/datasets.hpp file (-i = in place)
-# TODO - maybe bring back
-# sed -i "s,../data,${data_dir},g" ${BASE_DIR}/code/src/support/datasets.hpp
+sed -i "s,../data,${data_dir},g" ${BASE_DIR}/code/src/support/datasets.hpp
