@@ -65,27 +65,31 @@ The script also patches the [`/code/src/support/datasets.hpp`](/code/src/support
 *__This option is NOT recommended as the original code requires specific version requirements.__*
 
 ## 2 | Run the experiments
-### Parameters configuration
-The default configuration runs using the original benchmark parameters as found [here](https://github.com/DominikHorn/hashing-benchmark/blob/main/benchmark.sh).
+### 2.1; Parameters configuration
+The default configuration runs using the original benchmark parameters as found [here](https://github.com/DominikHorn/hashing-benchmark/blob/main/benchmark.sh). To check them out, refer to the [`/configs.py`](/configs.py) file.
 
-To change them (or simply to check them out), refer to the [`/configs.py`](/configs.py) file.
-
-<!-- start from here -->
-
-### CONT'D
+Parameters in the file can be changed to meet specific needs. In this case, it is necessary to update the code. This is done by running this script:
+```sh
+cd scripts
+python3 load_benchmarks.sh
+```
+### 2.2; Run
 To run the hash table experiments, use the following commands:
 ```sh
 cd scripts
-bash benchmark.sh <number_of_threads>
+bash benchmark.sh [<number_of_threads>]
 ```
-If not specified, the number of threads is set to 9. The output of each job is saved in a separate `/output/*results_tmp.json` file.
+If not specified, the number of threads is set to the number of CPUs. 
 
-### Enable prints
+<!-- TODO The output of each job is saved in a separate `/output/*tmp_results.json` file. -->
+
+### 2.3; Enable prints
 Informative prints are disabled by default, as they make the output messy and less clear. To rehabilitate them, just change the value of the `PRINT` macro in the [./code/masters_thesis.hpp](masters_thesis.hpp) file to 1.
 ```diff
 - #define PRINT 0
 + #define PRINT 1 
 ```
+<!-- TODO start from here -->
 
 ## Clean the output
 It is possible to clean the output using the following scripts:

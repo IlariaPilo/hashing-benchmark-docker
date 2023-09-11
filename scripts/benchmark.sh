@@ -1,56 +1,58 @@
 #!/bin/bash
+# set -e          # Stop in case there is an error
 
-# Save the original working directory
-original_dir=$(pwd)
+INITIAL_DIR=$(pwd)
+_source_dir_=$(dirname "$0")
+BASE_DIR=$(readlink -f "${_source_dir_}/..")     # /home/ilaria/Documents/stage/hashing-benchmark-docker
 
-function create_copy_and_execute {
-    element=$1
+# go in the code directory
+cd $BASE_DIR/code
+source .env
 
-    # Create a fully recursive copy of a directory
-    new_dir="../parallel/${element}_code"
-    if [ ! -d "$new_dir" ]; then
-        cp -R ../code "$new_dir"
-    fi
+# Build the target
+./build.sh benchmarks RELEASE
 
-    # Move into the copied directory
-    cd "$new_dir"
+# Get all benchmarks
+readarray -t all_bm < <(cmake-build-release/src/benchmarks --benchmark_list_tests | sed 's,/.*,*,' | uniq )
+# declare -p all_bm     # Check if the declaration went well
 
-    # Call a Python script
-    python3 benchmark_basic.py "$element"
-
-    cd "$original_dir"
-}
-
-echo -e "\n------------------ PARALLEL HASH BENCHMARKS ------------------\n"
-
-# List of elements to process in parallel
-targets=("learned_linear" "traditional_linear" "perfect_linear" 
-         "learned_chained" "traditional_chained" "perfect_chained"
-         "learned_cuckoo" "traditional_cuckoo" "perfect_cuckoo")
-#targets=("learned_linear" "traditional_linear" "perfect_linear" 
-#         "learned_chained" "traditional_chained" "perfect_chained"
-#         "learned_cuckoo" "traditional_cuckoo")
-
-# Number of parallel processes to use
-if [ -z "$1" ] || [ "$1" -gt 9 ]; then
-    num_processes=9
+# Get number of threads
+if [ $# -eq 0 ]; then
+  # Use default number
+  thread_number=$(nproc --all)
 else
-    num_processes="$1"
+  thread_number=$2
 fi
 
-echo "starting computation with $num_processes threads"
+echo -e "\n\033[1;96m [benchmark.sh] \033[0mRunning on $thread_number threads.\n"
 
-if [ ! -d "../parallel" ]; then
-    # Create the directory
-    mkdir "../parallel"
-fi
+# Calculate the number of elements per thread
+elements_per_thread=$(((${#all_bm[@]} + thread_number - 1) / thread_number))
 
-# Loop through the list of elements and execute them in parallel
-for element in "${targets[@]}"; do
-    create_copy_and_execute "$element" &
-    if (( ++count == num_processes )); then
-        count=0
-        wait
-    fi
+# Working filter example
+# bin/template --benchmark_filter=BM_VectorPushBack\<int,\ int\>\|BM_VectorPushBack\<int,\ double\>
+
+start=0
+
+# Set IFS to the pipe character
+IFS="|"
+
+for ((i = 0; i < thread_number; i++)); do
+
+    end=$((start + elements_per_thread - 1))
+    # Create a slice for the current subarray
+    bm_i=("${all_bm[@]:start:elements_per_thread}")
+
+    # run benchmarks
+    cmake-build-release/src/benchmarks --benchmark_filter="${bm_i[*]}" \
+        --benchmark_out=../output/tmp_results_${i}.json --benchmark_out_format=json &
+    
+    start=$((end + 1))
 done
+
+# Reset IFS to its default value
+IFS=$' \t\n'
 wait
+
+# join tmp results
+# TODO
