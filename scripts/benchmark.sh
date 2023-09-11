@@ -1,5 +1,5 @@
 #!/bin/bash
-# set -e          # Stop in case there is an error
+set -e          # Stop in case there is an error
 
 INITIAL_DIR=$(pwd)
 _source_dir_=$(dirname "$0")
@@ -32,13 +32,12 @@ elements_per_thread=$(((${#all_bm[@]} + thread_number - 1) / thread_number))
 # Working filter example
 # bin/template --benchmark_filter=BM_VectorPushBack\<int,\ int\>\|BM_VectorPushBack\<int,\ double\>
 
+set +e        # Disable "exit on error"
 start=0
-
 # Set IFS to the pipe character
 IFS="|"
 
 for ((i = 0; i < thread_number; i++)); do
-
     end=$((start + elements_per_thread - 1))
     # Create a slice for the current subarray
     bm_i=("${all_bm[@]:start:elements_per_thread}")

@@ -17,7 +17,7 @@ function_names = {
     HashF.XXHash3: "XXHash3",
     HashF.MWHC: "MWHC",
     HashF.BitMWHC: "BitMWHC",
-    HashF.RecSplit: "RecSplit",     # TODO - maybe
+    HashF.RecSplit: "RecSplit",
     # "FST":,
     HashF.RadixSplineHash: "RadixSplineHash",
     HashF.RMIHash: "RMIHash",
@@ -31,11 +31,12 @@ hash_mapping_dict={
     HashF.XXHash3:"using XXHash3 = hashing::XXHash3<Key>;",
     HashF.MWHC:"using MWHC = exotic_hashing::MWHC<Key>;",
     HashF.BitMWHC:"using BitMWHC = exotic_hashing::BitMWHC<Key>;",
-    HashF.RecSplit:"",          # TODO - maybe
+    HashF.RecSplit:"using RecSplit = exotic_hashing::RecSplit<std::uint64_t>;",
     # "FST":"using FST = exotic_hashing::FastSuccinctTrie<Data>;",
     HashF.RadixSplineHash:"using RadixSplineHash__count__ = learned_hashing::RadixSplineHash<std::uint64_t,num_radix_bits,max_error,100000000>;",
     HashF.RMIHash:"using RMIHash__count__ = learned_hashing::RMIHash<std::uint64_t,max_models>;",
-    HashF.PGMHash:""            # TODO - add
+    # according to the article, for PGM models, we set the error bound to 10.
+    HashF.PGMHash:"using PGMHash = learned_hashing::PGMHash<std::uint64_t,10,10,500000000,float>;"
 }
 function_type_dict={
     HashCategories.CLASSIC:"",
@@ -62,7 +63,7 @@ def hash_line(f: HashF,collision_config: ConfigBM = None, num_radix_bits=None):
     if "max_error" in ans_str:
         ans_str=ans_str.replace("max_error",str(max_error)) 
     if "num_radix_bits" in ans_str:
-        ans_str=ans_str.replace("num_radix_bits",str(num_radix_bits))        
+        ans_str=ans_str.replace("num_radix_bits",str(num_radix_bits))      
     return ans_str.replace("__count__",scheme_dict[collision_strategy])
 # examples
 # hash_line(MWHC,Exotic,0,0,18)        -> using MWHC = exotic_hashing::MWHC<Key>;
@@ -86,7 +87,7 @@ def bench_line(f: HashF,collision_config: ConfigBM):
     ans_str = ''
     for overalloc in collision_config.overalloc:
         ans_str+="\tBenchmarKapil"+collision_strategy+f_type_str+"("+str(bucket_size)+","+str(overalloc)+","+f_name
-        if f_type == HashCategories.LEARNED:
+        if f_type == HashCategories.LEARNED and f != HashF.PGMHash:
             ans_str+=collision_strategy
         if collision_strategy == "Cuckoo":
             ans_str+=",KickingStrat);\n"

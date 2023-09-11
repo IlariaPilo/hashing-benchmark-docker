@@ -59,9 +59,9 @@ AVAILABLE_HASH_FUNCTIONS: Dict[HashF, HashCategories] = {
 # Each function is associated to its category (learned, classic or perfect). 
 # TODO - uncomment
 functions_config = [
-    HashF.RMIHash, HashF.RadixSplineHash, # HashF.PGMHash,
+    HashF.RMIHash, HashF.RadixSplineHash, HashF.PGMHash,
     HashF.MURMUR, HashF.MultPrime64, HashF.FibonacciPrime64, HashF.AquaHash, HashF.XXHash3,
-    HashF.MWHC, HashF.BitMWHC, # HashF.RecSplit
+    HashF.MWHC, HashF.BitMWHC, HashF.RecSplit
 ]
 
 # ------ COLLISION MANAGEMENT ------

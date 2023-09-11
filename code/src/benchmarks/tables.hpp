@@ -808,6 +808,9 @@ static void PointProbeCuckoo(benchmark::State& state) {
 	using RadixSplineHashChained = learned_hashing::RadixSplineHash<std::uint64_t,18,1024,100000000>;
 	using RadixSplineHashCuckoo = learned_hashing::RadixSplineHash<std::uint64_t,18,32,100000000>;
 	using RadixSplineHashLinear = learned_hashing::RadixSplineHash<std::uint64_t,18,1024,100000000>;
+	using PGMHash = learned_hashing::PGMHash<std::uint64_t,10,10,500000000,float>;
+	using PGMHash = learned_hashing::PGMHash<std::uint64_t,10,10,500000000,float>;
+	using PGMHash = learned_hashing::PGMHash<std::uint64_t,10,10,500000000,float>;
 	using MURMUR = hashing::MurmurFinalizer<Key>;
 	using MultPrime64 = hashing::MultPrime64;
 	using FibonacciPrime64 = hashing::FibonacciPrime64;
@@ -815,6 +818,7 @@ static void PointProbeCuckoo(benchmark::State& state) {
 	using XXHash3 = hashing::XXHash3<Key>;
 	using MWHC = exotic_hashing::MWHC<Key>;
 	using BitMWHC = exotic_hashing::BitMWHC<Key>;
+	using RecSplit = exotic_hashing::RecSplit<std::uint64_t>;
 
 	// Benchmarks definitions
 
@@ -868,6 +872,32 @@ static void PointProbeCuckoo(benchmark::State& state) {
 	BenchmarKapilLinearModel(1,122,RadixSplineHashLinear);
 	BenchmarKapilLinearModel(1,185,RadixSplineHashLinear);
 	BenchmarKapilLinearModel(1,300,RadixSplineHashLinear);
+
+
+	// --------------- PGMHash --------------- // 
+	// Chained 
+	BenchmarKapilChainedModel(1,10050,PGMHash);
+	BenchmarKapilChainedModel(1,10067,PGMHash);
+	BenchmarKapilChainedModel(1,10080,PGMHash);
+	BenchmarKapilChainedModel(1,0,PGMHash);
+	BenchmarKapilChainedModel(1,34,PGMHash);
+	BenchmarKapilChainedModel(1,100,PGMHash);
+	BenchmarKapilChainedModel(1,300,PGMHash);
+
+	// Cuckoo 
+	BenchmarKapilCuckooModel(4,34,PGMHash,KickingStrat);
+	BenchmarKapilCuckooModel(4,25,PGMHash,KickingStrat);
+	BenchmarKapilCuckooModel(4,17,PGMHash,KickingStrat);
+	BenchmarKapilCuckooModel(4,11,PGMHash,KickingStrat);
+	BenchmarKapilCuckooModel(4,5,PGMHash,KickingStrat);
+
+	// Linear 
+	BenchmarKapilLinearModel(1,34,PGMHash);
+	BenchmarKapilLinearModel(1,54,PGMHash);
+	BenchmarKapilLinearModel(1,82,PGMHash);
+	BenchmarKapilLinearModel(1,122,PGMHash);
+	BenchmarKapilLinearModel(1,185,PGMHash);
+	BenchmarKapilLinearModel(1,300,PGMHash);
 
 
 	// --------------- MURMUR --------------- // 
@@ -1050,5 +1080,31 @@ static void PointProbeCuckoo(benchmark::State& state) {
 	BenchmarKapilLinearExotic(1,122,BitMWHC);
 	BenchmarKapilLinearExotic(1,185,BitMWHC);
 	BenchmarKapilLinearExotic(1,300,BitMWHC);
+
+
+	// --------------- RecSplit --------------- // 
+	// Chained 
+	BenchmarKapilChainedExotic(1,10050,RecSplit);
+	BenchmarKapilChainedExotic(1,10067,RecSplit);
+	BenchmarKapilChainedExotic(1,10080,RecSplit);
+	BenchmarKapilChainedExotic(1,0,RecSplit);
+	BenchmarKapilChainedExotic(1,34,RecSplit);
+	BenchmarKapilChainedExotic(1,100,RecSplit);
+	BenchmarKapilChainedExotic(1,300,RecSplit);
+
+	// Cuckoo 
+	BenchmarKapilCuckooExotic(4,34,RecSplit,KickingStrat);
+	BenchmarKapilCuckooExotic(4,25,RecSplit,KickingStrat);
+	BenchmarKapilCuckooExotic(4,17,RecSplit,KickingStrat);
+	BenchmarKapilCuckooExotic(4,11,RecSplit,KickingStrat);
+	BenchmarKapilCuckooExotic(4,5,RecSplit,KickingStrat);
+
+	// Linear 
+	BenchmarKapilLinearExotic(1,34,RecSplit);
+	BenchmarKapilLinearExotic(1,54,RecSplit);
+	BenchmarKapilLinearExotic(1,82,RecSplit);
+	BenchmarKapilLinearExotic(1,122,RecSplit);
+	BenchmarKapilLinearExotic(1,185,RecSplit);
+	BenchmarKapilLinearExotic(1,300,RecSplit);
 
 }	// namespace _

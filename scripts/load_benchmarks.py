@@ -66,4 +66,4 @@ with open(BASE_DIR+'code/src/benchmarks/tables.hpp', 'w') as dest_file:
     dest_file.write('}\t// namespace _')
 
 
-print("DONE")
+print("\n\033[1;96m [load_benchmarks.py] \033[0mDone!\n")
