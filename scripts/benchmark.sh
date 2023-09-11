@@ -53,5 +53,32 @@ done
 IFS=$' \t\n'
 wait
 
+set -e          # Stop in case there is an error
+
+echo -e "\n\033[1;96m [benchmark.sh] \033[0mBenchmark execution done!\n"
+
 # join tmp results
-# TODO
+
+# Create output file
+date_string=$(date +'%Y-%m-%d-%H-%M')
+output_file="../output/${date_string}_results.json"
+touch $output_file
+
+# Compute introduction length
+count=$(awk '/"benchmarks"/ {print; exit} 1' ../output/tmp_results_0.json | wc -l)
+count=$((count + 1))
+
+# Copy first file
+head -n -2 ../output/tmp_results_0.json >> $output_file
+
+for ((i = 1; i < thread_number; i++)); do
+    echo , >> $output_file
+    tail -n +$count "../output/tmp_results_$i.json" | head -n -2 >> $output_file
+done
+
+echo -e '\t]\n}' >> $output_file
+
+echo -e "\n\033[1;96m [benchmark.sh] \033[0mResult file is ready.\n"
+
+# Remove temporary files
+rm ../output/tmp*.json
