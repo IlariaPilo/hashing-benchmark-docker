@@ -151,7 +151,9 @@ static void TableProbe(benchmark::State& state) {
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
       dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
 
     // Generate data (keys & payloads) & probing set
@@ -171,7 +173,7 @@ static void TableProbe(benchmark::State& state) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
 
@@ -183,8 +185,10 @@ static void TableProbe(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
   }
   previous_signature = signature;
 
@@ -257,7 +261,9 @@ static void TableMixedLookup(benchmark::State& state) {
                           dataset::name(did) + "_" +
                           dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
 
     // Generate data (keys & payloads) & probing set
@@ -288,8 +294,10 @@ static void TableMixedLookup(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
   }
   previous_signature = signature;
 
@@ -360,7 +368,9 @@ static void PointProbe(benchmark::State& state) {
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
       dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
 
     // Generate data (keys & payloads) & probing set
@@ -380,7 +390,7 @@ static void PointProbe(benchmark::State& state) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
 
@@ -392,22 +402,25 @@ static void PointProbe(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
     
-    
-
   }
   
 
   assert(prev_table != nullptr);
   Table* table = (Table*)prev_table;
 
+  #if PRINT
   if (previous_signature != signature)
   {
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
     table->print_data_statistics();
   }
+  #endif
 
   // std::cout<<"signature swap"<<std::endl;
 
@@ -457,20 +470,14 @@ static void GapStats(benchmark::State& state) {
    const auto succ_probability =
       static_cast<size_t>(state.range(3));    
 
-  // google benchmark will run a benchmark function multiple times
-  // to determine, amongst other things, the iteration count for
-  // the benchmark loop. Technically, BM functions must be pure. However,
-  // since this setup logic is very expensive, we cache setup based on
-  // a unique signature containing all parameters.
-  // NOTE: google benchmark's fixtures suffer from the same
-  // 'execute setup multiple times' issue:
-  // https://github.com/google/benchmark/issues/952
   std::string signature =
       std::string(typeid(Table).name()) + "_" + std::to_string(RangeSize) +
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
       dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
 
     // Generate data (keys & payloads) & probing set
@@ -490,7 +497,7 @@ static void GapStats(benchmark::State& state) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
 
@@ -502,22 +509,22 @@ static void GapStats(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
-    
-    
-
+    #endif
   }
   
-
   assert(prev_table != nullptr);
   Table* table = (Table*)prev_table;
 
+  #if PRINT
   if (previous_signature != signature)
   {
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
     table->gap_stats();
   }
+  #endif
 
   // std::cout<<"signature swap"<<std::endl;
 
@@ -559,47 +566,37 @@ static void CollisionStats(benchmark::State& state) {
   const auto dataset_size = static_cast<size_t>(state.range(0));
   const auto did = static_cast<dataset::ID>(state.range(1));
   const auto probing_dist =
-      static_cast<dataset::ProbingDistribution>(state.range(2));
-   const auto succ_probability =
-      static_cast<size_t>(state.range(3));    
+    static_cast<dataset::ProbingDistribution>(state.range(2));
+  const auto succ_probability =
+    static_cast<size_t>(state.range(3));    
 
-  // google benchmark will run a benchmark function multiple times
-  // to determine, amongst other things, the iteration count for
-  // the benchmark loop. Technically, BM functions must be pure. However,
-  // since this setup logic is very expensive, we cache setup based on
-  // a unique signature containing all parameters.
-  // NOTE: google benchmark's fixtures suffer from the same
-  // 'execute setup multiple times' issue:
-  // https://github.com/google/benchmark/issues/952
   std::string signature =
-      std::string(typeid(Table).name()) + "_" + std::to_string(RangeSize) +
-      "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
-      dataset::name(probing_dist);
+    std::string(typeid(Table).name()) + "_" + std::to_string(RangeSize) +
+    "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
+    dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
-
     // Generate data (keys & payloads) & probing set
     std::vector<std::pair<Key, Payload>> data{};
     data.reserve(dataset_size);
     {
       auto keys = dataset::load_cached<Key>(did, dataset_size);
-
       std::transform(
           keys.begin(), keys.end(), std::back_inserter(data),
           [](const Key& key) { return std::make_pair(key, key - 5); });
       // int succ_probability=100;
       probing_set = dataset::generate_probing_set(keys, probing_dist,succ_probability);
     }
-
     if (data.empty()) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
-
     // build table
     if (prev_table != nullptr) free_lambda();
     prev_table = new Table(data);
@@ -608,73 +605,50 @@ static void CollisionStats(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
-    
-    
-
+    #endif
   }
   
-
   assert(prev_table != nullptr);
   Table* table = (Table*)prev_table;
 
-  if (previous_signature != signature)
-  {
+  #if PRINT
+  if (previous_signature != signature)  {
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
     table->print_data_statistics();
   }
+  #endif
 
-   if (previous_signature != signature)
-  {
+  if (previous_signature != signature) {
+    #if PRINT
     std::cout<<"Probing set size is: "<<probing_set.size()<<std::endl;
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
-    // table->print_data_statistics();
-
+    #endif
    
-      uint64_t total_sum=0;
-     auto start = std::chrono::high_resolution_clock::now(); 
+    uint64_t total_sum=0;
+    auto start = std::chrono::high_resolution_clock::now(); 
 
-    for(int itr=0;itr<probing_set.size()*0.1;itr++)
-    {
+    for(int itr=0;itr<probing_set.size()*0.1;itr++) {
       const auto searched = probing_set[itr%probing_set.size()];
-      // i++;
       total_sum+=table->hash_val(searched);
-      // Lower bound lookup
-    //  table->insert(searched,searched);  // TODO: does this generate a 'call' op? =>
-                      // https://stackoverflow.com/questions/10631283/how-will-i-know-whether-inline-function-is-actually-replaced-at-the-place-where
-      
-      
-      // __sync_synchronize();
     }
 
-     auto stop = std::chrono::high_resolution_clock::now(); 
-    // auto duration = duration_cast<milliseconds>(stop - start); 
+    auto stop = std::chrono::high_resolution_clock::now(); 
     auto duration = duration_cast<std::chrono::nanoseconds>(stop - start); 
+    #if PRINT
     std::cout << "Hash Computation is: "<< duration.count()*10.00/probing_set.size() << " nanoseconds" << std::endl;
     std::cout << "Total Sum: "<<total_sum<<std::endl;
-  
+    #endif
   }
-
-  // std::cout<<"signature swap"<<std::endl;
 
   previous_signature = signature;  
 
-  // std::cout<<"again?"<<std::endl;
-
   size_t i = 0;
+  // what is this?
   for (auto _ : state) {
-    // while (unlikely(i >= probing_set.size())) i -= probing_set.size();
-    // const auto searched = probing_set[i%probing_set.size()];
-    // i++;
-
-    // // Lower bound lookup
-    auto it = table->useless_func();  // TODO: does this generate a 'call' op? =>
-    //                 // https://stackoverflow.com/questions/10631283/how-will-i-know-whether-inline-function-is-actually-replaced-at-the-place-where
-
-    // benchmark::DoNotOptimize(it);
-    // __sync_synchronize();
-    // full_mem_barrier;
+    auto it = table->useless_func();
   }
 
   // set counters (don't do this in inner loop to avoid tainting results)
@@ -987,11 +961,32 @@ using namespace masters_thesis;
 
 
 
+/*
+---------- CHATGPT GENERATED ----------
+#include <cstdint>
+
+// Define the template arguments as an array of tuples.
+constexpr std::tuple<std::uint64_t, int, int, int, float> templateArgs[] = {
+    {32, 32, 500000000, float},
+    {2, 2, 500000000, float},
+    {128, 128, 500000000, float},
+    {1024, 1024, 500000000, float},
+    {10000, 10000, 500000000, float}
+};
+
+// Loop through the template arguments and create and benchmark PGMHash instances.
+for (const auto& args : templateArgs) {
+    using PGMHash = learned_hashing::PGMHash<std::uint64_t, std::get<0>(args), std::get<1>(args), std::get<2>(args), std::get<3>(args)>;
+    BenchmarKapilCollisionChainedModel(1, 0, PGMHash);
+}
+---------------------------------------
+*/
 
 
 
 
 
+// This line defines an alias PGMHash4 for a specific instantiation of the learned_hashing::PGMHash template.
 using PGMHash4 = learned_hashing::PGMHash<std::uint64_t,32,32,500000000,float>;
 BenchmarKapilCollisionChainedModel(1,0,PGMHash4);
 

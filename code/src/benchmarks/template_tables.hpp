@@ -146,7 +146,9 @@ static void TableProbe(benchmark::State& state) {
 
   // if it is a new signature, it is time to initialize!
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
     // Generate data (keys & payloads) & probing set
     std::vector<std::pair<Key, Payload>> data{};
@@ -164,7 +166,7 @@ static void TableProbe(benchmark::State& state) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
     // build table
@@ -174,8 +176,10 @@ static void TableProbe(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
   }
 
   previous_signature = signature;
@@ -254,7 +258,9 @@ static void TableMixedLookup(benchmark::State& state) {
                           dataset::name(did) + "_" +
                           dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
     // Generate data (keys & payloads) & probing set
     std::vector<std::pair<Key, Payload>> data{};
@@ -280,8 +286,10 @@ static void TableMixedLookup(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
   }
   previous_signature = signature;
 
@@ -366,7 +374,9 @@ static void PointProbe(benchmark::State& state) {
   // }
      
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
     // Generate data (keys & payloads) & probing set
     std::vector<std::pair<Key, Payload>> data{};
@@ -383,7 +393,7 @@ static void PointProbe(benchmark::State& state) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
     // build table
@@ -393,14 +403,20 @@ static void PointProbe(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
     // ------ this is extra wrt to TableProbe ------ //
     std::sort(data.begin(), data.end(),[](const auto& a, const auto& b) { return a.first < b.first; });
+    #if PRINT
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
-    // table->print_data_statistics();
+    #endif
+
+    #if PRINT
     Table* table = (Table*)prev_table;
     table->print_data_statistics();
+    #endif
 
     // TODO - these are useless? their scope finishes right after?
     uint64_t total_sum=0;
@@ -441,7 +457,6 @@ static void PointProbe(benchmark::State& state) {
 }
 
 
-
 template <class Table,size_t RangeSize>
 static void CollisionStats(benchmark::State& state) {
   // Extract variables
@@ -465,7 +480,9 @@ static void CollisionStats(benchmark::State& state) {
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
       dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
 
     // Generate data (keys & payloads) & probing set
@@ -485,7 +502,7 @@ static void CollisionStats(benchmark::State& state) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
 
@@ -497,22 +514,24 @@ static void CollisionStats(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
     
-    
-
   }
   
 
   assert(prev_table != nullptr);
   Table* table = (Table*)prev_table;
 
+  #if PRINT
   if (previous_signature != signature)
   {
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
     table->print_data_statistics();
   }
+  #endif
 
   // std::cout<<"signature swap"<<std::endl;
 
@@ -568,7 +587,6 @@ using namespace masters_thesis;
   BENCHMARK_TEMPLATE(TableProbe, Table, 20)                                    \
       ->ArgsProduct({dataset_sizes, datasets, probe_distributions});
 
-
 #define BenchmarkMonotone(BucketSize, Model)                    \
   using MonotoneHashtable##BucketSize##Model =                  \
       MonotoneHashtable<Key, Payload, BucketSize, Model>;       \
@@ -581,38 +599,27 @@ using namespace masters_thesis;
   using MMPHFTable##MMPHF = MMPHFTable<Key, Payload, MMPHF>; \
   BM(MMPHFTable##MMPHF);
 
-
 #define KAPILBM(Table)                                                              \
   BENCHMARK_TEMPLATE(PointProbe, Table, 0)                                     \
       ->ArgsProduct({dataset_sizes, datasets, probe_distributions,succ_probability});
 
-
-
-
 // ############################## Chaining ##############################
-// ############################## Chaining ##############################
-// ############################## Chaining ##############################
-
 
 #define BenchmarKapilChained(BucketSize,OverAlloc,HashFn)                           \
   using KapilChainedHashTable##BucketSize##OverAlloc##HashFn = KapilChainedHashTable<Key, Payload, BucketSize,OverAlloc, HashFn>; \
   KAPILBM(KapilChainedHashTable##BucketSize##OverAlloc##HashFn);
 
 #define BenchmarKapilChainedExotic(BucketSize,OverAlloc,MMPHF)                           \
-  using KapilChainedExoticHashTable##BucketSize##MMPHF = KapilChainedExoticHashTable<Key, Payload, BucketSize,OverAlloc, MMPHF>; \
-  KAPILBM(KapilChainedExoticHashTable##BucketSize##MMPHF);
+  using KapilChainedExoticHashTable##BucketSize##OverAlloc##MMPHF = KapilChainedExoticHashTable<Key, Payload, BucketSize,OverAlloc, MMPHF>; \
+  KAPILBM(KapilChainedExoticHashTable##BucketSize##OverAlloc##MMPHF);
 
 #define BenchmarKapilChainedModel(BucketSize,OverAlloc,Model)                           \
   using KapilChainedModelHashTable##BucketSize##OverAlloc##Model = KapilChainedModelHashTable<Key, Payload, BucketSize,OverAlloc, Model>; \
   KAPILBM(KapilChainedModelHashTable##BucketSize##OverAlloc##Model);
 
-
 const std::vector<std::int64_t> bucket_size_chain{1,2,4,8};
 const std::vector<std::int64_t> overalloc_chain{10,25,50,100};
 
-
-// ############################## LINEAR PROBING ##############################
-// ############################## LINEAR PROBING ##############################
 // ############################## LINEAR PROBING ##############################
 
 #define BenchmarKapilLinear(BucketSize,OverAlloc,HashFn)                           \
@@ -620,20 +627,14 @@ const std::vector<std::int64_t> overalloc_chain{10,25,50,100};
   KAPILBM(KapilLinearHashTable##BucketSize##OverAlloc##HashFn);
 
 #define BenchmarKapilLinearExotic(BucketSize,OverAlloc,MMPHF)                           \
-  using KapilLinearExoticHashTable##BucketSize##MMPHF = KapilLinearExoticHashTable<Key, Payload, BucketSize,OverAlloc, MMPHF>; \
-  KAPILBM(KapilLinearExoticHashTable##BucketSize##MMPHF);
+  using KapilLinearExoticHashTable##BucketSize##OverAlloc##MMPHF = KapilLinearExoticHashTable<Key, Payload, BucketSize,OverAlloc, MMPHF>; \
+  KAPILBM(KapilLinearExoticHashTable##BucketSize##OverAlloc##MMPHF);
 
 #define BenchmarKapilLinearModel(BucketSize,OverAlloc,Model)                           \
   using KapilLinearModelHashTable##BucketSize##OverAlloc##Model = KapilLinearModelHashTable<Key, Payload, BucketSize,OverAlloc, Model>; \
   KAPILBM(KapilLinearModelHashTable##BucketSize##OverAlloc##Model);
 
-
-
 // ############################## CUCKOO HASHING ##############################
-// ############################## CUCKOO HASHING ##############################
-// ############################## CUCKOO HASHING ##############################
-
-
 
 template <class Table,size_t RangeSize>
 static void PointProbeCuckoo(benchmark::State& state) {
@@ -657,7 +658,9 @@ static void PointProbeCuckoo(benchmark::State& state) {
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
       dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
 
     // Generate data (keys & payloads) & probing set
@@ -677,7 +680,7 @@ static void PointProbeCuckoo(benchmark::State& state) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
 
@@ -689,24 +692,23 @@ static void PointProbeCuckoo(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
-
-    // std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
-    // prev_table->print_data_statistics();
-
+    #endif
   }
   
 
   assert(prev_table != nullptr);
   Table* table = (Table*)prev_table;
 
-
+  #if PRINT
   if (previous_signature != signature)
   {
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
     table->print_data_statistics();
   }
+  #endif
 
 
   // if (previous_signature != signature)
@@ -775,28 +777,24 @@ static void PointProbeCuckoo(benchmark::State& state) {
                  dataset::name(probing_dist)+":"+temp);
 }
 
-
 #define KAPILBMCuckoo(Table)                                                              \
   BENCHMARK_TEMPLATE(PointProbeCuckoo, Table, 0)                                     \
       ->ArgsProduct({dataset_sizes, datasets, probe_distributions,succ_probability});
-
-
-
-
 
 #define BenchmarKapilCuckoo(BucketSize,OverAlloc,HashFn,KickingStrat)                           \
   using MURMUR1 = hashing::MurmurFinalizer<Key>; \
   using KapilCuckooHashTable##BucketSize##OverAlloc##HashFn##KickingStrat = kapilhashtable::KapilCuckooHashTable<Key, Payload, BucketSize,OverAlloc, HashFn, MURMUR1,KickingStrat>; \
   KAPILBMCuckoo(KapilCuckooHashTable##BucketSize##OverAlloc##HashFn##KickingStrat);
 
-
-#define BenchmarKapilCuckooModel(BucketSize,OverAlloc,Model,KickingStrat1)                           \
+#define BenchmarKapilCuckooModel(BucketSize,OverAlloc,HashFn,KickingStrat1)                           \
   using MURMUR1 = hashing::MurmurFinalizer<Key>; \
-  using KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1 = kapilmodelhashtable::KapilCuckooModelHashTable<Key, Payload, BucketSize,OverAlloc, Model, MURMUR1,KickingStrat1>; \
+  using KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1 = kapilmodelhashtable::KapilCuckooModelHashTable<Key, Payload, BucketSize,OverAlloc, HashFn, MURMUR1,KickingStrat1>; \
   KAPILBMCuckoo(KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1);
 
-#define BenchmarKapilCuckooExotic(BucketSize,OverAlloc,MMPHF,KickingStrat1)                           \
+#define BenchmarKapilCuckooExotic(BucketSize,OverAlloc,HashFn,KickingStrat1)                           \
   using MURMUR1 = hashing::MurmurFinalizer<Key>; \
-  using KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1 = kapilcuckooexotichashtable::KapilCuckooExoticHashTable<Key, Payload, BucketSize,OverAlloc, MMPHF, MURMUR1,KickingStrat1>; \
+  using KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1 = kapilcuckooexotichashtable::KapilCuckooExoticHashTable<Key, Payload, BucketSize,OverAlloc, HashFn, MURMUR1,KickingStrat1>; \
   KAPILBMCuckoo(KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1);
+
+// ******************* from now on, it's going to be automatic generated code ******************* //
 

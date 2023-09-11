@@ -173,7 +173,9 @@ class KapilLinearHashTable {
      auto stop = std::chrono::high_resolution_clock::now(); 
     // auto duration = duration_cast<milliseconds>(stop - start); 
     auto duration = duration_cast<std::chrono::nanoseconds>(stop - start); 
+    #if PRINT
     std::cout<< std::endl << "Insert Latency is: "<< duration.count()*1.00/insert_count << " nanoseconds" << std::endl;
+    #endif
   }
 
   class Iterator {

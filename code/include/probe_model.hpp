@@ -149,12 +149,17 @@ class KapilLinearModelHashTable {
     std::transform(data.begin(), data.end(), std::back_inserter(keys),
                    [](const auto& p) { return p.first; });
 
+    #if PRINT
     std::cout<<"dataset size: "<<keys.size()<<" buckets size: "<<buckets.size()<<std::endl;
     std::cout<<"model building started"<<std::endl;
+    #endif
+
     // train model on sorted data
     model.train(keys.begin(), keys.end(), buckets.size());
 
+    #if PRINT
     std::cout<<"model building over"<<std::endl;
+    #endif
 
     // insert all keys according to model prediction.
     // since we sorted above, this will permit further
@@ -182,10 +187,9 @@ class KapilLinearModelHashTable {
      auto stop = std::chrono::high_resolution_clock::now(); 
     // auto duration = duration_cast<milliseconds>(stop - start); 
     auto duration = duration_cast<std::chrono::nanoseconds>(stop - start); 
+    #if PRINT
     std::cout<< std::endl << "Insert Latency is: "<< duration.count()*1.00/insert_count << " nanoseconds" << std::endl;
-
-
-
+    #endif
   }
 
    int useless_func()

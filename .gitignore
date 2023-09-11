@@ -35,6 +35,10 @@
 cmake-build*
 compile_commands.json
 
+# extra
+__pycache__
+.vscode
+
 parallel/
 
 # Datasets

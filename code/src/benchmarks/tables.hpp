@@ -63,14 +63,10 @@ const std::vector<std::int64_t> datasets{
     static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::FB)
     };
 
-// const std::vector<std::int64_t> probe_distributions{
-//     static_cast<std::underlying_type_t<dataset::ProbingDistribution>>(
-//         dataset::ProbingDistribution::UNIFORM),
-//     static_cast<std::underlying_type_t<dataset::ProbingDistribution>>(
-//         dataset::ProbingDistribution::EXPONENTIAL_RANDOM),
-//     static_cast<std::underlying_type_t<dataset::ProbingDistribution>>(
-//         dataset::ProbingDistribution::EXPONENTIAL_SORTED)};
+// *********************************************************************** //
 
+// IMPORTANT - this is a benchmarked function
+// builds the hash table
 template <class Table>
 static void Construction(benchmark::State& state) {
   std::random_device rd;
@@ -78,14 +74,13 @@ static void Construction(benchmark::State& state) {
 
   // Extract variables
   const auto dataset_size = static_cast<size_t>(state.range(0));
-  const auto did = static_cast<dataset::ID>(state.range(1));
+  const auto did = static_cast<dataset::ID>(state.range(1));  // which dataset?
 
   // Generate data (keys & payloads) & probing set
   std::vector<std::pair<Key, Payload>> data;
   data.reserve(dataset_size);
   {
     auto keys = dataset::load_cached<Key>(did, dataset_size);
-
     std::transform(keys.begin(), keys.end(), std::back_inserter(data),
                    [](const Key& key) { return std::make_pair(key, key - 5); });
   }
@@ -102,7 +97,6 @@ static void Construction(benchmark::State& state) {
   std::string name;
   for (auto _ : state) {
     Table table(data);
-
     total_bytes = table.byte_size();
     directory_bytes = table.directory_byte_size();
     name = table.name();
@@ -117,16 +111,23 @@ static void Construction(benchmark::State& state) {
   state.SetLabel(name + ":" + dataset::name(did));
 }
 
+// *********************************************************************** //
+
 std::string previous_signature = "";
 std::vector<Key> probing_set{};
 void* prev_table = nullptr;
 std::function<void()> free_lambda = []() {};
 
+// *********************************************************************** //
+
+// IMPORTANT - this is a benchmarked function
+// queries (=probes) all values in the table
 template <class Table, size_t RangeSize>
 static void TableProbe(benchmark::State& state) {
   // Extract variables
   const auto dataset_size = static_cast<size_t>(state.range(0));
-  const auto did = static_cast<dataset::ID>(state.range(1));
+  const auto did = static_cast<dataset::ID>(state.range(1));      // which datasets?
+  // determines the distribution that will be used to get the probing order
   const auto probing_dist =
       static_cast<dataset::ProbingDistribution>(state.range(2));
 
@@ -142,53 +143,59 @@ static void TableProbe(benchmark::State& state) {
       std::string(typeid(Table).name()) + "_" + std::to_string(RangeSize) +
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
       dataset::name(probing_dist);
-  if (previous_signature != signature) {
-    std::cout << "performing setup... ";
-    auto start = std::chrono::steady_clock::now();
 
+  // if it is a new signature, it is time to initialize!
+  if (previous_signature != signature) {
+    #if PRINT
+    std::cout << "performing setup... ";
+    #endif
+    auto start = std::chrono::steady_clock::now();
     // Generate data (keys & payloads) & probing set
     std::vector<std::pair<Key, Payload>> data{};
     data.reserve(dataset_size);
     {
       auto keys = dataset::load_cached<Key>(did, dataset_size);
-
       std::transform(
           keys.begin(), keys.end(), std::back_inserter(data),
           [](const Key& key) { return std::make_pair(key, key - 5); });
       int succ_probability=100;
+      // generates a probing order for any dataset dataset, given a desired distribution
       probing_set = dataset::generate_probing_set(keys, probing_dist,succ_probability);
     }
-
     if (data.empty()) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
-
     // build table
     if (prev_table != nullptr) free_lambda();
     prev_table = new Table(data);
     free_lambda = []() { delete ((Table*)prev_table); };
-
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
   }
+
   previous_signature = signature;
 
   assert(prev_table != nullptr);
   Table* table = (Table*)prev_table;
 
   size_t i = 0;
+
+  // start benchmarking!
   for (auto _ : state) {
     while (unlikely(i >= probing_set.size())) i -= probing_set.size();
     const auto searched = probing_set[i++];
 
     // Lower bound lookup
+    // Returns an iterator pointing to the payload for a given key or end() if no such key could be found
     auto it = table->operator[](
         searched);  // TODO: does this generate a 'call' op? =>
                     // https://stackoverflow.com/questions/10631283/how-will-i-know-whether-inline-function-is-actually-replaced-at-the-place-where
@@ -220,9 +227,11 @@ static void TableProbe(benchmark::State& state) {
                  dataset::name(probing_dist));
 }
 
+// *********************************************************************** //
 
-
-
+// IMPORTANT - this is a benchmarked function
+// queries (=probes) all values in the table. 
+// each query will be ranged (with range 10) with probability 1-percentage_of_point_queries/100
 template <class Table>
 static void TableMixedLookup(benchmark::State& state) {
   std::random_device rd;
@@ -249,39 +258,38 @@ static void TableMixedLookup(benchmark::State& state) {
                           dataset::name(did) + "_" +
                           dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
-
     // Generate data (keys & payloads) & probing set
     std::vector<std::pair<Key, Payload>> data{};
     data.reserve(dataset_size);
     {
       auto keys = dataset::load_cached<Key>(did, dataset_size);
-
       std::transform(
           keys.begin(), keys.end(), std::back_inserter(data),
           [](const Key& key) { return std::make_pair(key, key - 5); });
       int succ_probability=100;
       probing_set = dataset::generate_probing_set(keys, probing_dist,succ_probability);
     }
-
     if (data.empty()) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
       return;
     }
-
     // build table
     if (prev_table != nullptr) free_lambda();
     prev_table = new Table(data);
     free_lambda = []() { delete ((Table*)prev_table); };
-
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
   }
   previous_signature = signature;
 
@@ -289,6 +297,7 @@ static void TableMixedLookup(benchmark::State& state) {
   Table* table = (Table*)prev_table;
 
   // distribution
+  // we use this to generate a random value between 1 and 100
   std::uniform_int_distribution<size_t> point_query_dist(1, 100);
 
   size_t i = 0;
@@ -303,6 +312,7 @@ static void TableMixedLookup(benchmark::State& state) {
       benchmark::DoNotOptimize(lb_payload);
 
       // Chance based perform full range scan
+      // performs range query with probability 1-percentage_of_point_queries/100
       if (point_query_dist(rng) > percentage_of_point_queries) {
         ++it;
         Payload total = 0;
@@ -328,7 +338,10 @@ static void TableMixedLookup(benchmark::State& state) {
 }
 
 
+// *********************************************************************** //
 
+// IMPORTANT - this is a benchmarked function
+//
 template <class Table,size_t RangeSize>
 static void PointProbe(benchmark::State& state) {
   // Extract variables
@@ -336,7 +349,8 @@ static void PointProbe(benchmark::State& state) {
   const auto did = static_cast<dataset::ID>(state.range(1));
   const auto probing_dist =
       static_cast<dataset::ProbingDistribution>(state.range(2));
-   const auto succ_probability =
+  // TODO idk
+  const auto succ_probability =
       static_cast<size_t>(state.range(3)); 
          
 
@@ -353,81 +367,78 @@ static void PointProbe(benchmark::State& state) {
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
       dataset::name(probing_dist);
 
-  if(previous_signature!=signature) 
-  {
-    std::cout<<"Probing set size is: "<<probing_set.size()<<std::endl;
-    std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
-  }
+  // if(previous_signature!=signature) 
+  // {
+  //   std::cout<<"Probing set size is: "<<probing_set.size()<<std::endl;
+  //   std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
+  // }
      
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
-
     // Generate data (keys & payloads) & probing set
     std::vector<std::pair<Key, Payload>> data{};
     data.reserve(dataset_size);
     {
       auto keys = dataset::load_cached<Key>(did, dataset_size);
-
       std::transform(
           keys.begin(), keys.end(), std::back_inserter(data),
           [](const Key& key) { return std::make_pair(key, key - 5); });
       // int succ_probability=100;
       probing_set = dataset::generate_probing_set(keys, probing_dist,succ_probability);
     }
-
     if (data.empty()) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
-
     // build table
     if (prev_table != nullptr) free_lambda();
     prev_table = new Table(data);
     free_lambda = []() { delete ((Table*)prev_table); };
-
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
-    
+    #endif
+    // ------ this is extra wrt to TableProbe ------ //
     std::sort(data.begin(), data.end(),[](const auto& a, const auto& b) { return a.first < b.first; });
+    #if PRINT
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
-    // table->print_data_statistics();
+    #endif
 
+    #if PRINT
     Table* table = (Table*)prev_table;
-
     table->print_data_statistics();
+    #endif
 
+    // TODO - these are useless? their scope finishes right after?
     uint64_t total_sum=0;
     uint64_t query_count=100000;
-
-    
-
+    // --------------------------------------------- //
   }
   
-
   assert(prev_table != nullptr);
   Table* table = (Table*)prev_table;
   previous_signature = signature;  
 
-
   size_t i = 0;
+  // benchmarking time!
   for (auto _ : state) {
     while (unlikely(i >= probing_set.size())) i -= probing_set.size();
     const auto searched = probing_set[i%probing_set.size()];
     i++;
 
     // Lower bound lookup
-    // auto it = table->useless_func();
-    auto it = table->operator[](searched);  // TODO: does this generate a 'call' op? =>
-                    // https://stackoverflow.com/questions/10631283/how-will-i-know-whether-inline-function-is-actually-replaced-at-the-place-where
-
+    auto it = table->operator[](searched);
     benchmark::DoNotOptimize(it);
+
     // __sync_synchronize();
     // full_mem_barrier;
   }
@@ -444,7 +455,6 @@ static void PointProbe(benchmark::State& state) {
   state.SetLabel(table->name() + ":" + dataset::name(did) + ":" +
                  dataset::name(probing_dist)+":"+temp);
 }
-
 
 
 template <class Table,size_t RangeSize>
@@ -470,7 +480,9 @@ static void CollisionStats(benchmark::State& state) {
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
       dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
 
     // Generate data (keys & payloads) & probing set
@@ -490,7 +502,7 @@ static void CollisionStats(benchmark::State& state) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
 
@@ -502,22 +514,24 @@ static void CollisionStats(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
     
-    
-
   }
   
 
   assert(prev_table != nullptr);
   Table* table = (Table*)prev_table;
 
+  #if PRINT
   if (previous_signature != signature)
   {
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
     table->print_data_statistics();
   }
+  #endif
 
   // std::cout<<"signature swap"<<std::endl;
 
@@ -539,7 +553,6 @@ static void CollisionStats(benchmark::State& state) {
     __sync_synchronize();
     // full_mem_barrier;
   }
-
   // set counters (don't do this in inner loop to avoid tainting results)
   state.counters["table_bytes"] = table->byte_size();
   state.counters["table_directory_bytes"] = table->directory_byte_size();
@@ -553,14 +566,12 @@ static void CollisionStats(benchmark::State& state) {
                  dataset::name(probing_dist)+":"+temp);
 }
 
-
-
-
-
-
-
 using namespace masters_thesis;
 
+// defines a macro to register all functions with a different "Table" subclass
+// -- Construction
+// -- TableMixedLookup
+// -- TableProbe (0,1,10,20)  -> TODO: what are these numbers
 #define BM(Table)                                                              \
   BENCHMARK_TEMPLATE(Construction, Table)                                      \
       ->ArgsProduct({dataset_sizes, datasets});                                \
@@ -576,7 +587,6 @@ using namespace masters_thesis;
   BENCHMARK_TEMPLATE(TableProbe, Table, 20)                                    \
       ->ArgsProduct({dataset_sizes, datasets, probe_distributions});
 
-
 #define BenchmarkMonotone(BucketSize, Model)                    \
   using MonotoneHashtable##BucketSize##Model =                  \
       MonotoneHashtable<Key, Payload, BucketSize, Model>;       \
@@ -589,38 +599,27 @@ using namespace masters_thesis;
   using MMPHFTable##MMPHF = MMPHFTable<Key, Payload, MMPHF>; \
   BM(MMPHFTable##MMPHF);
 
-
 #define KAPILBM(Table)                                                              \
   BENCHMARK_TEMPLATE(PointProbe, Table, 0)                                     \
       ->ArgsProduct({dataset_sizes, datasets, probe_distributions,succ_probability});
 
-
-
-
 // ############################## Chaining ##############################
-// ############################## Chaining ##############################
-// ############################## Chaining ##############################
-
 
 #define BenchmarKapilChained(BucketSize,OverAlloc,HashFn)                           \
   using KapilChainedHashTable##BucketSize##OverAlloc##HashFn = KapilChainedHashTable<Key, Payload, BucketSize,OverAlloc, HashFn>; \
   KAPILBM(KapilChainedHashTable##BucketSize##OverAlloc##HashFn);
 
 #define BenchmarKapilChainedExotic(BucketSize,OverAlloc,MMPHF)                           \
-  using KapilChainedExoticHashTable##BucketSize##MMPHF = KapilChainedExoticHashTable<Key, Payload, BucketSize,OverAlloc, MMPHF>; \
-  KAPILBM(KapilChainedExoticHashTable##BucketSize##MMPHF);
+  using KapilChainedExoticHashTable##BucketSize##OverAlloc##MMPHF = KapilChainedExoticHashTable<Key, Payload, BucketSize,OverAlloc, MMPHF>; \
+  KAPILBM(KapilChainedExoticHashTable##BucketSize##OverAlloc##MMPHF);
 
 #define BenchmarKapilChainedModel(BucketSize,OverAlloc,Model)                           \
   using KapilChainedModelHashTable##BucketSize##OverAlloc##Model = KapilChainedModelHashTable<Key, Payload, BucketSize,OverAlloc, Model>; \
   KAPILBM(KapilChainedModelHashTable##BucketSize##OverAlloc##Model);
 
-
 const std::vector<std::int64_t> bucket_size_chain{1,2,4,8};
 const std::vector<std::int64_t> overalloc_chain{10,25,50,100};
 
-
-// ############################## LINEAR PROBING ##############################
-// ############################## LINEAR PROBING ##############################
 // ############################## LINEAR PROBING ##############################
 
 #define BenchmarKapilLinear(BucketSize,OverAlloc,HashFn)                           \
@@ -628,20 +627,14 @@ const std::vector<std::int64_t> overalloc_chain{10,25,50,100};
   KAPILBM(KapilLinearHashTable##BucketSize##OverAlloc##HashFn);
 
 #define BenchmarKapilLinearExotic(BucketSize,OverAlloc,MMPHF)                           \
-  using KapilLinearExoticHashTable##BucketSize##MMPHF = KapilLinearExoticHashTable<Key, Payload, BucketSize,OverAlloc, MMPHF>; \
-  KAPILBM(KapilLinearExoticHashTable##BucketSize##MMPHF);
+  using KapilLinearExoticHashTable##BucketSize##OverAlloc##MMPHF = KapilLinearExoticHashTable<Key, Payload, BucketSize,OverAlloc, MMPHF>; \
+  KAPILBM(KapilLinearExoticHashTable##BucketSize##OverAlloc##MMPHF);
 
 #define BenchmarKapilLinearModel(BucketSize,OverAlloc,Model)                           \
   using KapilLinearModelHashTable##BucketSize##OverAlloc##Model = KapilLinearModelHashTable<Key, Payload, BucketSize,OverAlloc, Model>; \
   KAPILBM(KapilLinearModelHashTable##BucketSize##OverAlloc##Model);
 
-
-
 // ############################## CUCKOO HASHING ##############################
-// ############################## CUCKOO HASHING ##############################
-// ############################## CUCKOO HASHING ##############################
-
-
 
 template <class Table,size_t RangeSize>
 static void PointProbeCuckoo(benchmark::State& state) {
@@ -665,7 +658,9 @@ static void PointProbeCuckoo(benchmark::State& state) {
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
       dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
 
     // Generate data (keys & payloads) & probing set
@@ -685,7 +680,7 @@ static void PointProbeCuckoo(benchmark::State& state) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
 
@@ -697,24 +692,23 @@ static void PointProbeCuckoo(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
-
-    // std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
-    // prev_table->print_data_statistics();
-
+    #endif
   }
   
 
   assert(prev_table != nullptr);
   Table* table = (Table*)prev_table;
 
-
+  #if PRINT
   if (previous_signature != signature)
   {
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
     table->print_data_statistics();
   }
+  #endif
 
 
   // if (previous_signature != signature)
@@ -783,35 +777,334 @@ static void PointProbeCuckoo(benchmark::State& state) {
                  dataset::name(probing_dist)+":"+temp);
 }
 
-
 #define KAPILBMCuckoo(Table)                                                              \
   BENCHMARK_TEMPLATE(PointProbeCuckoo, Table, 0)                                     \
       ->ArgsProduct({dataset_sizes, datasets, probe_distributions,succ_probability});
-
-
-
-
 
 #define BenchmarKapilCuckoo(BucketSize,OverAlloc,HashFn,KickingStrat)                           \
   using MURMUR1 = hashing::MurmurFinalizer<Key>; \
   using KapilCuckooHashTable##BucketSize##OverAlloc##HashFn##KickingStrat = kapilhashtable::KapilCuckooHashTable<Key, Payload, BucketSize,OverAlloc, HashFn, MURMUR1,KickingStrat>; \
   KAPILBMCuckoo(KapilCuckooHashTable##BucketSize##OverAlloc##HashFn##KickingStrat);
 
-
-#define BenchmarKapilCuckooModel(BucketSize,OverAlloc,Model,KickingStrat1)                           \
+#define BenchmarKapilCuckooModel(BucketSize,OverAlloc,HashFn,KickingStrat1)                           \
   using MURMUR1 = hashing::MurmurFinalizer<Key>; \
-  using KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1 = kapilmodelhashtable::KapilCuckooModelHashTable<Key, Payload, BucketSize,OverAlloc, Model, MURMUR1,KickingStrat1>; \
+  using KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1 = kapilmodelhashtable::KapilCuckooModelHashTable<Key, Payload, BucketSize,OverAlloc, HashFn, MURMUR1,KickingStrat1>; \
   KAPILBMCuckoo(KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1);
 
-#define BenchmarKapilCuckooExotic(BucketSize,OverAlloc,MMPHF,KickingStrat1)                           \
+#define BenchmarKapilCuckooExotic(BucketSize,OverAlloc,HashFn,KickingStrat1)                           \
   using MURMUR1 = hashing::MurmurFinalizer<Key>; \
-  using KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1 = kapilcuckooexotichashtable::KapilCuckooExoticHashTable<Key, Payload, BucketSize,OverAlloc, MMPHF, MURMUR1,KickingStrat1>; \
+  using KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1 = kapilcuckooexotichashtable::KapilCuckooExoticHashTable<Key, Payload, BucketSize,OverAlloc, HashFn, MURMUR1,KickingStrat1>; \
   KAPILBMCuckoo(KapilCuckooModelHashTable##BucketSize##OverAlloc##HashFn##KickingStrat1);
 
-using RMIHash = learned_hashing::RMIHash<std::uint64_t,100>;
+// ******************* from now on, it's going to be automatic generated code ******************* //
 
-BenchmarKapilLinearModel(1,82,RMIHash);
+	// Kicking strategy (for Cuckoo)
+	using KickingStrat = kapilmodelhashtable::KapilModelBiasedKicking<5>;
+
+	// Function aliases definition
+	using RMIHashChained = learned_hashing::RMIHash<std::uint64_t,100>;
+	using RMIHashCuckoo = learned_hashing::RMIHash<std::uint64_t,100000>;
+	using RMIHashLinear = learned_hashing::RMIHash<std::uint64_t,100>;
+	using RadixSplineHashChained = learned_hashing::RadixSplineHash<std::uint64_t,18,1024,100000000>;
+	using RadixSplineHashCuckoo = learned_hashing::RadixSplineHash<std::uint64_t,18,32,100000000>;
+	using RadixSplineHashLinear = learned_hashing::RadixSplineHash<std::uint64_t,18,1024,100000000>;
+	using PGMHash = learned_hashing::PGMHash<std::uint64_t,10,10,500000000,float>;
+	using PGMHash = learned_hashing::PGMHash<std::uint64_t,10,10,500000000,float>;
+	using PGMHash = learned_hashing::PGMHash<std::uint64_t,10,10,500000000,float>;
+	using MURMUR = hashing::MurmurFinalizer<Key>;
+	using MultPrime64 = hashing::MultPrime64;
+	using FibonacciPrime64 = hashing::FibonacciPrime64;
+	using AquaHash = hashing::AquaHash<Key>;
+	using XXHash3 = hashing::XXHash3<Key>;
+	using MWHC = exotic_hashing::MWHC<Key>;
+	using BitMWHC = exotic_hashing::BitMWHC<Key>;
+	using RecSplit = exotic_hashing::RecSplit<std::uint64_t>;
+
+	// Benchmarks definitions
+
+	// --------------- RMIHash --------------- // 
+	// Chained 
+	BenchmarKapilChainedModel(1,10050,RMIHashChained);
+	BenchmarKapilChainedModel(1,10067,RMIHashChained);
+	BenchmarKapilChainedModel(1,10080,RMIHashChained);
+	BenchmarKapilChainedModel(1,0,RMIHashChained);
+	BenchmarKapilChainedModel(1,34,RMIHashChained);
+	BenchmarKapilChainedModel(1,100,RMIHashChained);
+	BenchmarKapilChainedModel(1,300,RMIHashChained);
+
+	// Cuckoo 
+	BenchmarKapilCuckooModel(4,34,RMIHashCuckoo,KickingStrat);
+	BenchmarKapilCuckooModel(4,25,RMIHashCuckoo,KickingStrat);
+	BenchmarKapilCuckooModel(4,17,RMIHashCuckoo,KickingStrat);
+	BenchmarKapilCuckooModel(4,11,RMIHashCuckoo,KickingStrat);
+	BenchmarKapilCuckooModel(4,5,RMIHashCuckoo,KickingStrat);
+
+	// Linear 
+	BenchmarKapilLinearModel(1,34,RMIHashLinear);
+	BenchmarKapilLinearModel(1,54,RMIHashLinear);
+	BenchmarKapilLinearModel(1,82,RMIHashLinear);
+	BenchmarKapilLinearModel(1,122,RMIHashLinear);
+	BenchmarKapilLinearModel(1,185,RMIHashLinear);
+	BenchmarKapilLinearModel(1,300,RMIHashLinear);
 
 
+	// --------------- RadixSplineHash --------------- // 
+	// Chained 
+	BenchmarKapilChainedModel(1,10050,RadixSplineHashChained);
+	BenchmarKapilChainedModel(1,10067,RadixSplineHashChained);
+	BenchmarKapilChainedModel(1,10080,RadixSplineHashChained);
+	BenchmarKapilChainedModel(1,0,RadixSplineHashChained);
+	BenchmarKapilChainedModel(1,34,RadixSplineHashChained);
+	BenchmarKapilChainedModel(1,100,RadixSplineHashChained);
+	BenchmarKapilChainedModel(1,300,RadixSplineHashChained);
 
-}  // namespace _
+	// Cuckoo 
+	BenchmarKapilCuckooModel(4,34,RadixSplineHashCuckoo,KickingStrat);
+	BenchmarKapilCuckooModel(4,25,RadixSplineHashCuckoo,KickingStrat);
+	BenchmarKapilCuckooModel(4,17,RadixSplineHashCuckoo,KickingStrat);
+	BenchmarKapilCuckooModel(4,11,RadixSplineHashCuckoo,KickingStrat);
+	BenchmarKapilCuckooModel(4,5,RadixSplineHashCuckoo,KickingStrat);
+
+	// Linear 
+	BenchmarKapilLinearModel(1,34,RadixSplineHashLinear);
+	BenchmarKapilLinearModel(1,54,RadixSplineHashLinear);
+	BenchmarKapilLinearModel(1,82,RadixSplineHashLinear);
+	BenchmarKapilLinearModel(1,122,RadixSplineHashLinear);
+	BenchmarKapilLinearModel(1,185,RadixSplineHashLinear);
+	BenchmarKapilLinearModel(1,300,RadixSplineHashLinear);
+
+
+	// --------------- PGMHash --------------- // 
+	// Chained 
+	BenchmarKapilChainedModel(1,10050,PGMHash);
+	BenchmarKapilChainedModel(1,10067,PGMHash);
+	BenchmarKapilChainedModel(1,10080,PGMHash);
+	BenchmarKapilChainedModel(1,0,PGMHash);
+	BenchmarKapilChainedModel(1,34,PGMHash);
+	BenchmarKapilChainedModel(1,100,PGMHash);
+	BenchmarKapilChainedModel(1,300,PGMHash);
+
+	// Cuckoo 
+	BenchmarKapilCuckooModel(4,34,PGMHash,KickingStrat);
+	BenchmarKapilCuckooModel(4,25,PGMHash,KickingStrat);
+	BenchmarKapilCuckooModel(4,17,PGMHash,KickingStrat);
+	BenchmarKapilCuckooModel(4,11,PGMHash,KickingStrat);
+	BenchmarKapilCuckooModel(4,5,PGMHash,KickingStrat);
+
+	// Linear 
+	BenchmarKapilLinearModel(1,34,PGMHash);
+	BenchmarKapilLinearModel(1,54,PGMHash);
+	BenchmarKapilLinearModel(1,82,PGMHash);
+	BenchmarKapilLinearModel(1,122,PGMHash);
+	BenchmarKapilLinearModel(1,185,PGMHash);
+	BenchmarKapilLinearModel(1,300,PGMHash);
+
+
+	// --------------- MURMUR --------------- // 
+	// Chained 
+	BenchmarKapilChained(1,10050,MURMUR);
+	BenchmarKapilChained(1,10067,MURMUR);
+	BenchmarKapilChained(1,10080,MURMUR);
+	BenchmarKapilChained(1,0,MURMUR);
+	BenchmarKapilChained(1,34,MURMUR);
+	BenchmarKapilChained(1,100,MURMUR);
+	BenchmarKapilChained(1,300,MURMUR);
+
+	// Cuckoo 
+	BenchmarKapilCuckoo(4,34,MURMUR,KickingStrat);
+	BenchmarKapilCuckoo(4,25,MURMUR,KickingStrat);
+	BenchmarKapilCuckoo(4,17,MURMUR,KickingStrat);
+	BenchmarKapilCuckoo(4,11,MURMUR,KickingStrat);
+	BenchmarKapilCuckoo(4,5,MURMUR,KickingStrat);
+
+	// Linear 
+	BenchmarKapilLinear(1,34,MURMUR);
+	BenchmarKapilLinear(1,54,MURMUR);
+	BenchmarKapilLinear(1,82,MURMUR);
+	BenchmarKapilLinear(1,122,MURMUR);
+	BenchmarKapilLinear(1,185,MURMUR);
+	BenchmarKapilLinear(1,300,MURMUR);
+
+
+	// --------------- MultPrime64 --------------- // 
+	// Chained 
+	BenchmarKapilChained(1,10050,MultPrime64);
+	BenchmarKapilChained(1,10067,MultPrime64);
+	BenchmarKapilChained(1,10080,MultPrime64);
+	BenchmarKapilChained(1,0,MultPrime64);
+	BenchmarKapilChained(1,34,MultPrime64);
+	BenchmarKapilChained(1,100,MultPrime64);
+	BenchmarKapilChained(1,300,MultPrime64);
+
+	// Cuckoo 
+	BenchmarKapilCuckoo(4,34,MultPrime64,KickingStrat);
+	BenchmarKapilCuckoo(4,25,MultPrime64,KickingStrat);
+	BenchmarKapilCuckoo(4,17,MultPrime64,KickingStrat);
+	BenchmarKapilCuckoo(4,11,MultPrime64,KickingStrat);
+	BenchmarKapilCuckoo(4,5,MultPrime64,KickingStrat);
+
+	// Linear 
+	BenchmarKapilLinear(1,34,MultPrime64);
+	BenchmarKapilLinear(1,54,MultPrime64);
+	BenchmarKapilLinear(1,82,MultPrime64);
+	BenchmarKapilLinear(1,122,MultPrime64);
+	BenchmarKapilLinear(1,185,MultPrime64);
+	BenchmarKapilLinear(1,300,MultPrime64);
+
+
+	// --------------- FibonacciPrime64 --------------- // 
+	// Chained 
+	BenchmarKapilChained(1,10050,FibonacciPrime64);
+	BenchmarKapilChained(1,10067,FibonacciPrime64);
+	BenchmarKapilChained(1,10080,FibonacciPrime64);
+	BenchmarKapilChained(1,0,FibonacciPrime64);
+	BenchmarKapilChained(1,34,FibonacciPrime64);
+	BenchmarKapilChained(1,100,FibonacciPrime64);
+	BenchmarKapilChained(1,300,FibonacciPrime64);
+
+	// Cuckoo 
+	BenchmarKapilCuckoo(4,34,FibonacciPrime64,KickingStrat);
+	BenchmarKapilCuckoo(4,25,FibonacciPrime64,KickingStrat);
+	BenchmarKapilCuckoo(4,17,FibonacciPrime64,KickingStrat);
+	BenchmarKapilCuckoo(4,11,FibonacciPrime64,KickingStrat);
+	BenchmarKapilCuckoo(4,5,FibonacciPrime64,KickingStrat);
+
+	// Linear 
+	BenchmarKapilLinear(1,34,FibonacciPrime64);
+	BenchmarKapilLinear(1,54,FibonacciPrime64);
+	BenchmarKapilLinear(1,82,FibonacciPrime64);
+	BenchmarKapilLinear(1,122,FibonacciPrime64);
+	BenchmarKapilLinear(1,185,FibonacciPrime64);
+	BenchmarKapilLinear(1,300,FibonacciPrime64);
+
+
+	// --------------- AquaHash --------------- // 
+	// Chained 
+	BenchmarKapilChained(1,10050,AquaHash);
+	BenchmarKapilChained(1,10067,AquaHash);
+	BenchmarKapilChained(1,10080,AquaHash);
+	BenchmarKapilChained(1,0,AquaHash);
+	BenchmarKapilChained(1,34,AquaHash);
+	BenchmarKapilChained(1,100,AquaHash);
+	BenchmarKapilChained(1,300,AquaHash);
+
+	// Cuckoo 
+	BenchmarKapilCuckoo(4,34,AquaHash,KickingStrat);
+	BenchmarKapilCuckoo(4,25,AquaHash,KickingStrat);
+	BenchmarKapilCuckoo(4,17,AquaHash,KickingStrat);
+	BenchmarKapilCuckoo(4,11,AquaHash,KickingStrat);
+	BenchmarKapilCuckoo(4,5,AquaHash,KickingStrat);
+
+	// Linear 
+	BenchmarKapilLinear(1,34,AquaHash);
+	BenchmarKapilLinear(1,54,AquaHash);
+	BenchmarKapilLinear(1,82,AquaHash);
+	BenchmarKapilLinear(1,122,AquaHash);
+	BenchmarKapilLinear(1,185,AquaHash);
+	BenchmarKapilLinear(1,300,AquaHash);
+
+
+	// --------------- XXHash3 --------------- // 
+	// Chained 
+	BenchmarKapilChained(1,10050,XXHash3);
+	BenchmarKapilChained(1,10067,XXHash3);
+	BenchmarKapilChained(1,10080,XXHash3);
+	BenchmarKapilChained(1,0,XXHash3);
+	BenchmarKapilChained(1,34,XXHash3);
+	BenchmarKapilChained(1,100,XXHash3);
+	BenchmarKapilChained(1,300,XXHash3);
+
+	// Cuckoo 
+	BenchmarKapilCuckoo(4,34,XXHash3,KickingStrat);
+	BenchmarKapilCuckoo(4,25,XXHash3,KickingStrat);
+	BenchmarKapilCuckoo(4,17,XXHash3,KickingStrat);
+	BenchmarKapilCuckoo(4,11,XXHash3,KickingStrat);
+	BenchmarKapilCuckoo(4,5,XXHash3,KickingStrat);
+
+	// Linear 
+	BenchmarKapilLinear(1,34,XXHash3);
+	BenchmarKapilLinear(1,54,XXHash3);
+	BenchmarKapilLinear(1,82,XXHash3);
+	BenchmarKapilLinear(1,122,XXHash3);
+	BenchmarKapilLinear(1,185,XXHash3);
+	BenchmarKapilLinear(1,300,XXHash3);
+
+
+	// --------------- MWHC --------------- // 
+	// Chained 
+	BenchmarKapilChainedExotic(1,10050,MWHC);
+	BenchmarKapilChainedExotic(1,10067,MWHC);
+	BenchmarKapilChainedExotic(1,10080,MWHC);
+	BenchmarKapilChainedExotic(1,0,MWHC);
+	BenchmarKapilChainedExotic(1,34,MWHC);
+	BenchmarKapilChainedExotic(1,100,MWHC);
+	BenchmarKapilChainedExotic(1,300,MWHC);
+
+	// Cuckoo 
+	BenchmarKapilCuckooExotic(4,34,MWHC,KickingStrat);
+	BenchmarKapilCuckooExotic(4,25,MWHC,KickingStrat);
+	BenchmarKapilCuckooExotic(4,17,MWHC,KickingStrat);
+	BenchmarKapilCuckooExotic(4,11,MWHC,KickingStrat);
+	BenchmarKapilCuckooExotic(4,5,MWHC,KickingStrat);
+
+	// Linear 
+	BenchmarKapilLinearExotic(1,34,MWHC);
+	BenchmarKapilLinearExotic(1,54,MWHC);
+	BenchmarKapilLinearExotic(1,82,MWHC);
+	BenchmarKapilLinearExotic(1,122,MWHC);
+	BenchmarKapilLinearExotic(1,185,MWHC);
+	BenchmarKapilLinearExotic(1,300,MWHC);
+
+
+	// --------------- BitMWHC --------------- // 
+	// Chained 
+	BenchmarKapilChainedExotic(1,10050,BitMWHC);
+	BenchmarKapilChainedExotic(1,10067,BitMWHC);
+	BenchmarKapilChainedExotic(1,10080,BitMWHC);
+	BenchmarKapilChainedExotic(1,0,BitMWHC);
+	BenchmarKapilChainedExotic(1,34,BitMWHC);
+	BenchmarKapilChainedExotic(1,100,BitMWHC);
+	BenchmarKapilChainedExotic(1,300,BitMWHC);
+
+	// Cuckoo 
+	BenchmarKapilCuckooExotic(4,34,BitMWHC,KickingStrat);
+	BenchmarKapilCuckooExotic(4,25,BitMWHC,KickingStrat);
+	BenchmarKapilCuckooExotic(4,17,BitMWHC,KickingStrat);
+	BenchmarKapilCuckooExotic(4,11,BitMWHC,KickingStrat);
+	BenchmarKapilCuckooExotic(4,5,BitMWHC,KickingStrat);
+
+	// Linear 
+	BenchmarKapilLinearExotic(1,34,BitMWHC);
+	BenchmarKapilLinearExotic(1,54,BitMWHC);
+	BenchmarKapilLinearExotic(1,82,BitMWHC);
+	BenchmarKapilLinearExotic(1,122,BitMWHC);
+	BenchmarKapilLinearExotic(1,185,BitMWHC);
+	BenchmarKapilLinearExotic(1,300,BitMWHC);
+
+
+	// --------------- RecSplit --------------- // 
+	// Chained 
+	BenchmarKapilChainedExotic(1,10050,RecSplit);
+	BenchmarKapilChainedExotic(1,10067,RecSplit);
+	BenchmarKapilChainedExotic(1,10080,RecSplit);
+	BenchmarKapilChainedExotic(1,0,RecSplit);
+	BenchmarKapilChainedExotic(1,34,RecSplit);
+	BenchmarKapilChainedExotic(1,100,RecSplit);
+	BenchmarKapilChainedExotic(1,300,RecSplit);
+
+	// Cuckoo 
+	BenchmarKapilCuckooExotic(4,34,RecSplit,KickingStrat);
+	BenchmarKapilCuckooExotic(4,25,RecSplit,KickingStrat);
+	BenchmarKapilCuckooExotic(4,17,RecSplit,KickingStrat);
+	BenchmarKapilCuckooExotic(4,11,RecSplit,KickingStrat);
+	BenchmarKapilCuckooExotic(4,5,RecSplit,KickingStrat);
+
+	// Linear 
+	BenchmarKapilLinearExotic(1,34,RecSplit);
+	BenchmarKapilLinearExotic(1,54,RecSplit);
+	BenchmarKapilLinearExotic(1,82,RecSplit);
+	BenchmarKapilLinearExotic(1,122,RecSplit);
+	BenchmarKapilLinearExotic(1,185,RecSplit);
+	BenchmarKapilLinearExotic(1,300,RecSplit);
+
+}	// namespace _

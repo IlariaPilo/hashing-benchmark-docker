@@ -151,9 +151,9 @@ class KapilChainedExoticHashTable {
      auto stop = std::chrono::high_resolution_clock::now(); 
     // auto duration = duration_cast<milliseconds>(stop - start); 
     auto duration = duration_cast<std::chrono::nanoseconds>(stop - start); 
+    #if PRINT
     std::cout<< std::endl << "Insert Latency is: "<< duration.count()*1.00/insert_count << " nanoseconds" << std::endl;
-
-
+    #endif
   }
 
   class Iterator {
@@ -267,6 +267,7 @@ class KapilChainedExoticHashTable {
 
     std::map<int, int>::iterator it;
 
+
     std::cout<<"Start Num Elements"<<std::endl;
 
     for (it = num_ele_map.begin(); it != num_ele_map.end(); it++)
@@ -274,9 +275,10 @@ class KapilChainedExoticHashTable {
       std::cout<<"Num Elements: ";
       std::cout<<it->first<<" : "<<it->second<<std::endl;
     }
-
+ 
     return;
   }
+    
 
 
   /**

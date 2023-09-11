@@ -27,7 +27,9 @@ static void deduplicate_and_sort(std::vector<T>& vec) {
  */
 template <class Key>
 std::vector<Key> load(const std::string& filepath) {
+  #if PRINT
   std::cout << "loading dataset " << filepath << std::endl;
+  #endif
 
   // parsing helper functions
   auto read_little_endian_8 = [](const std::vector<unsigned char>& buffer,
@@ -258,8 +260,9 @@ std::vector<Data> load_cached(ID id, size_t dataset_size, int is_s_relation) {
 
       if(is_s_relation == 1)
         std::shuffle(ds.begin(), ds.end(), rng2);
-
-       std::cout<<" j is: "<<j<<" i is: "<<i<<std::endl;
+        #if PRINT
+        std::cout<<" j is: "<<j<<" i is: "<<i<<std::endl;
+        #endif
       
       break;
     }
@@ -293,8 +296,9 @@ std::vector<Data> load_cached(ID id, size_t dataset_size, int is_s_relation) {
 
       if(is_s_relation == 1)
         std::shuffle(ds.begin(), ds.end(), rng2);
-
-         std::cout<<" j is: "<<j<<" i is: "<<i<<std::endl;
+        #if PRINT
+        std::cout<<" j is: "<<j<<" i is: "<<i<<std::endl;
+        #endif
 
       break;
     }
@@ -327,8 +331,9 @@ std::vector<Data> load_cached(ID id, size_t dataset_size, int is_s_relation) {
 
       if(is_s_relation == 1)
         std::shuffle(ds.begin(), ds.end(), rng2);
-
-       std::cout<<" j is: "<<j<<" i is: "<<i<<std::endl;
+        #if PRINT
+        std::cout<<" j is: "<<j<<" i is: "<<i<<std::endl;
+        #endif
       break;
     }
     default:

@@ -145,7 +145,9 @@ static void TableProbe(benchmark::State& state) {
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
       dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
 
     // Generate data (keys & payloads) & probing set
@@ -165,7 +167,7 @@ static void TableProbe(benchmark::State& state) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
 
@@ -177,8 +179,10 @@ static void TableProbe(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
   }
   previous_signature = signature;
 
@@ -251,7 +255,9 @@ static void TableMixedLookup(benchmark::State& state) {
                           dataset::name(did) + "_" +
                           dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
 
     // Generate data (keys & payloads) & probing set
@@ -282,8 +288,10 @@ static void TableMixedLookup(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
   }
   previous_signature = signature;
 
@@ -359,14 +367,18 @@ static void PointProbe(benchmark::State& state) {
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
       dataset::name(probing_dist);
 
+  #if PRINT
   if(previous_signature!=signature) 
   {
     std::cout<<"Probing set size is: "<<probing_set.size()<<std::endl;
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
   }
+  #endif
      
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
 
     // Generate data (keys & payloads) & probing set
@@ -386,7 +398,7 @@ static void PointProbe(benchmark::State& state) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
 
@@ -398,22 +410,27 @@ static void PointProbe(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
     
     std::sort(data.begin(), data.end(),[](const auto& a, const auto& b) { return a.first < b.first; });
+    #if PRINT
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
-    // table->print_data_statistics();
+    #endif
 
     Table* table = (Table*)prev_table;
 
     uint64_t total_sum=0;
     uint64_t query_count=100000;
 
-    // std::cout<<"Point Query Prop: "<<point_query_prop<<std::endl;
+    #if PRINT
     std::cout<<"Point Query Prop: "<<point_query_prop<<std::endl;
 
     std::cout<<"Range Query Size: "<<range_query_size<<std::endl;
+    #endif
+
     // auto start_3 = std::chrono::high_resolution_clock::now(); 
 
     // for(int itr=0;itr<query_count;itr++)
@@ -482,8 +499,10 @@ static void PointProbe(benchmark::State& state) {
 
     auto stop_2 = std::chrono::high_resolution_clock::now(); 
     // auto duration = duration_cast<milliseconds>(stop - start); 
-    auto duration_2 = duration_cast<std::chrono::nanoseconds>(stop_2 - start_2); 
+    auto duration_2 = duration_cast<std::chrono::nanoseconds>(stop_2 - start_2);
+    #if PRINT 
     std::cout << "RMIRangeQuery Latency is: "<< duration_2.count()*1.00/query_count << " nanoseconds" << std::endl;
+    #endif
 
     auto start_1 = std::chrono::high_resolution_clock::now(); 
 
@@ -511,12 +530,12 @@ static void PointProbe(benchmark::State& state) {
 
     auto stop_1 = std::chrono::high_resolution_clock::now(); 
     // auto duration = duration_cast<milliseconds>(stop - start); 
-    auto duration_1 = duration_cast<std::chrono::nanoseconds>(stop_1 - start_1); 
+    auto duration_1 = duration_cast<std::chrono::nanoseconds>(stop_1 - start_1);
+
+    #if PRINT 
     std::cout << "HashRangeQuery Latency is: "<< duration_1.count()*1.00/query_count << " nanoseconds" << std::endl;
-
-
     std::cout<<"total sum:"<<total_sum<<std::endl;
-
+    #endif
 
   }
   
@@ -586,7 +605,9 @@ static void CollisionStats(benchmark::State& state) {
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
       dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
 
     // Generate data (keys & payloads) & probing set
@@ -606,7 +627,7 @@ static void CollisionStats(benchmark::State& state) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
 
@@ -618,22 +639,24 @@ static void CollisionStats(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
+    #endif
     
-    
-
   }
   
 
   assert(prev_table != nullptr);
   Table* table = (Table*)prev_table;
 
+  #if PRINT
   if (previous_signature != signature)
   {
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
     table->print_data_statistics();
   }
+  #endif
 
   // std::cout<<"signature swap"<<std::endl;
 
@@ -781,7 +804,9 @@ static void PointProbeCuckoo(benchmark::State& state) {
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
       dataset::name(probing_dist);
   if (previous_signature != signature) {
+    #if PRINT
     std::cout << "performing setup... ";
+    #endif
     auto start = std::chrono::steady_clock::now();
 
     // Generate data (keys & payloads) & probing set
@@ -801,7 +826,7 @@ static void PointProbeCuckoo(benchmark::State& state) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
-      std::cout << "failed" << std::endl;
+      std::cerr << "failed" << std::endl;
       return;
     }
 
@@ -813,24 +838,23 @@ static void PointProbeCuckoo(benchmark::State& state) {
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> diff = end - start;
+    #if PRINT
     std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
               << std::endl;
-
-    // std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
-    // prev_table->print_data_statistics();
-
+    #endif
   }
   
 
   assert(prev_table != nullptr);
   Table* table = (Table*)prev_table;
 
-
+  #if PRINT
   if (previous_signature != signature)
   {
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
     table->print_data_statistics();
   }
+  #endif
 
 
   // if (previous_signature != signature)
