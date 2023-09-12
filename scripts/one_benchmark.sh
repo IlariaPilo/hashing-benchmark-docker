@@ -16,6 +16,6 @@ source .env
 readarray -t all_bm < <(cmake-build-release/src/benchmarks --benchmark_list_tests | sed 's,/.*,*,' | uniq )
 # declare -p all_bm     # Check if the declaration went well
 
-cmake-build-release/src/benchmarks --benchmark_filter="${all_bm[12]}" --benchmark_list_tests \ 
+cmake-build-release/src/benchmarks --benchmark_filter="${all_bm[12]}" \ 
         --benchmark_out=../output/one_result.json --benchmark_out_format=json
 

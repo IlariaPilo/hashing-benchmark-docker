@@ -20,4 +20,4 @@
 // Order is important
 #include "include/convenience/undef.hpp"
 
-#define PRINT 0
+#define PRINT 1
