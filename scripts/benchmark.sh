@@ -21,7 +21,7 @@ if [ $# -eq 0 ]; then
   # Use default number
   thread_number=$(nproc --all)
 else
-  thread_number=$2
+  thread_number=$1
 fi
 
 echo -e "\n\033[1;96m [benchmark.sh] \033[0mRunning on $thread_number threads.\n"
