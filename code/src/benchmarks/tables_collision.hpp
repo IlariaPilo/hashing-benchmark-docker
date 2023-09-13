@@ -81,17 +81,11 @@ static void CollisionStats(benchmark::State& state) {
     std::cout << "performing setup... ";
     #endif
     auto start = std::chrono::steady_clock::now();
-    // Generate data (keys & payloads) & probing set
+
     std::vector<std::pair<Key, Payload>> data{};
     data.reserve(dataset_size);
-    {
-      auto keys = dataset::load_cached<Key>(did, dataset_size);
-      std::transform(
-          keys.begin(), keys.end(), std::back_inserter(data),
-          [](const Key& key) { return std::make_pair(key, key - 5); });
-      int succ_probability=100;
-      probing_set = dataset::generate_probing_set(keys, probing_dist,succ_probability);
-    }
+    probing_set = dataset::load_cached<Key>(did, dataset_size);
+
     if (data.empty()) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
@@ -132,7 +126,7 @@ static void CollisionStats(benchmark::State& state) {
     }
     // PERFECT FN
     // FIXME
-    if constexpr (has_construct<HashFn>) {
+    //if constexpr (has_construct<HashFn>) {
       #if PRINT
       std::cout << "Perfect function construction starting...";
       #endif
@@ -147,7 +141,7 @@ static void CollisionStats(benchmark::State& state) {
       #if PRINT
       std::cout << " done." << std::endl;
       #endif
-    }
+    //}
 
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
@@ -159,7 +153,7 @@ static void CollisionStats(benchmark::State& state) {
 
     // ********************************************************************** //
     // logic to count collisions - maybe move in the loop
-    // TODO START HERE AND DO ALL OTHER UTILITIES FUNCTIONS
+    
     std::vector<size_t> hash_v;
     hash_v.resize(dataset_size, 0);
     for (auto entry : hash_v) {
@@ -310,8 +304,8 @@ using namespace masters_thesis;
   // CollisionBM(MultPrime64,0);
   // CollisionBM(FibonacciPrime64,0);
   // CollisionBM(AquaHash,0);
-  CollisionBM(XXHash3,0);
-  // CollisionBM(MWHC,0);
+  // CollisionBM(XXHash3,0);
+  CollisionBM(MWHC,0);
   // CollisionBM(BitMWHC,0);
   // CollisionBM(RecSplit,0);
 
