@@ -108,10 +108,14 @@ static void CollisionStats(benchmark::State& state) {
 
     HashFn& fn = *static_cast<HashFn*>(prev_fn);
 
+    #if PRINT
+    std::cout << "has_train<HashFn>: " << has_train<HashFn> << std::endl;
+    std::cout << "has_construct<HashFn>: " << has_construct<HashFn> << std::endl;
+    #endif
     // LEARNED FN
     if constexpr (has_train<HashFn>) {
       #if PRINT
-      std::cout << 'Learned function training starting...';
+      std::cout << "Learned function training starting...";
       #endif
       // train model on sorted data
       std::sort(data.begin(), data.end(),
@@ -122,13 +126,13 @@ static void CollisionStats(benchmark::State& state) {
                      [](const auto& p) { return p.first; });
       fn.train(keys.begin(), keys.end(), dataset_size);
       #if PRINT
-      std::cout << ' done.' << std::endl;
+      std::cout << " done." << std::endl;
       #endif
     }
     // PERFECT FN
     if constexpr (has_construct<HashFn>) {
       #if PRINT
-      std::cout << 'Perfect function construction starting...';
+      std::cout << "Perfect function construction starting...";
       #endif
       // construct perfect hash table
       std::sort(data.begin(), data.end(),
@@ -139,7 +143,7 @@ static void CollisionStats(benchmark::State& state) {
                      [](const auto& p) { return p.first; });
       fn.construct(keys.begin(), keys.end());
       #if PRINT
-      std::cout << ' done.' << std::endl;
+      std::cout << " done." << std::endl;
       #endif
     }
 
