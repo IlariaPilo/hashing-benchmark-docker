@@ -110,6 +110,9 @@ static void CollisionStats(benchmark::State& state) {
 
     // LEARNED FN
     if constexpr (has_train_member<decltype(fn)>::value) {
+      #if PRINT
+      std::cout << 'Learned function training starting...';
+      #endif
       // train model on sorted data
       std::sort(data.begin(), data.end(),
                [](const auto& a, const auto& b) { return a.first < b.first; });
@@ -118,9 +121,15 @@ static void CollisionStats(benchmark::State& state) {
       std::transform(data.begin(), data.end(), std::back_inserter(keys),
                      [](const auto& p) { return p.first; });
       fn.train(keys.begin(), keys.end(), dataset_size);
+      #if PRINT
+      std::cout << ' done.' << std::endl;
+      #endif
     }
     // PERFECT FN
     if constexpr (has_construct_member<decltype(fn)>::value) {
+      #if PRINT
+      std::cout << 'Perfect function construction starting...';
+      #endif
       // construct perfect hash table
       std::sort(data.begin(), data.end(),
                [](const auto& a, const auto& b) { return a.first < b.first; });
@@ -129,6 +138,9 @@ static void CollisionStats(benchmark::State& state) {
       std::transform(data.begin(), data.end(), std::back_inserter(keys),
                      [](const auto& p) { return p.first; });
       fn.construct(keys.begin(), keys.end());
+      #if PRINT
+      std::cout << ' done.' << std::endl;
+      #endif
     }
 
     // measure time elapsed
