@@ -65,14 +65,6 @@ HashCategories get_fn_type() {
     return get_category(full_name);
 }
 
-class TRAIN {
-
- public:
-    void train() {
-        int a=10;
-    }
-};
-
 // Define a helper type trait to check if 'train' member function exists
 template <typename T, typename = void> struct has_train_sfinae : std::false_type {};
 template <typename T> struct has_train_sfinae<T,

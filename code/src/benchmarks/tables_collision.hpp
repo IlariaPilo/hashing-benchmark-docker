@@ -130,7 +130,7 @@ static void CollisionStats(benchmark::State& state) {
       #endif
     }
     // PERFECT FN
-    if constexpr (has_construct<HashFn>) {
+    //if constexpr (has_construct<HashFn>) {
       #if PRINT
       std::cout << "Perfect function construction starting...";
       #endif
@@ -145,7 +145,7 @@ static void CollisionStats(benchmark::State& state) {
       #if PRINT
       std::cout << " done." << std::endl;
       #endif
-    }
+    //}
 
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
