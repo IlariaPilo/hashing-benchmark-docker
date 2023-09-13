@@ -109,7 +109,7 @@ static void CollisionStats(benchmark::State& state) {
     HashFn& fn = *static_cast<HashFn*>(prev_fn);
 
     // LEARNED FN
-    if constexpr (has_train_member<decltype(fn)>::value) {
+    if constexpr (has_train<HashFn>) {
       #if PRINT
       std::cout << 'Learned function training starting...';
       #endif
@@ -126,7 +126,7 @@ static void CollisionStats(benchmark::State& state) {
       #endif
     }
     // PERFECT FN
-    if constexpr (has_construct_member<decltype(fn)>::value) {
+    if constexpr (has_construct<HashFn>) {
       #if PRINT
       std::cout << 'Perfect function construction starting...';
       #endif

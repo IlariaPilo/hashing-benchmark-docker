@@ -66,30 +66,17 @@ HashCategories get_fn_type() {
 }
 
 // Define a helper type trait to check if 'train' member function exists
-template <typename T>
-struct has_train_member {
-private:
-    template <typename C>
-    static constexpr auto check(C*) -> typename std::is_same<decltype(std::declval<C>().train(std::declval<typename C::iterator>(), std::declval<typename C::iterator>(), 0)), void>::type;
+template <typename T, typename = void> struct has_train_sfinae : std::false_type {};
+template <typename T> struct has_train_sfinae<T,
+    decltype(void(std::declval<T &>().train(std::declval<const typename T::value_type &>())))
+> : std::true_type {};
+template <typename T> inline constexpr bool has_train = has_train_sfinae<T>::value;
 
-    template <typename>
-    static constexpr std::false_type check(...);
-
-public:
-    static constexpr bool value = std::is_same<decltype(check<T>(nullptr)), std::true_type>::value;
-};
 // Define a helper type trait to check if 'construct' member function exists
-template <typename T>
-struct has_construct_member {
-private:
-    template <typename C>
-    static constexpr auto check(C*) -> typename std::is_same<decltype(std::declval<C>().construct(std::declval<typename C::iterator>(), std::declval<typename C::iterator>(), 0)), void>::type;
-
-    template <typename>
-    static constexpr std::false_type check(...);
-
-public:
-    static constexpr bool value = std::is_same<decltype(check<T>(nullptr)), std::true_type>::value;
-};
+template <typename T, typename = void> struct has_construct_sfinae : std::false_type {};
+template <typename T> struct has_construct_sfinae<T,
+    decltype(void(std::declval<T &>().construct(std::declval<const typename T::value_type &>())))
+> : std::true_type {};
+template <typename T> inline constexpr bool has_construct = has_construct_sfinae<T>::value;
 
 #endif
