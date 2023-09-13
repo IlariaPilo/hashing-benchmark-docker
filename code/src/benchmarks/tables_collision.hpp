@@ -81,13 +81,7 @@ static void CollisionStats(benchmark::State& state) {
     #endif
     auto start = std::chrono::steady_clock::now();
 
-    std::vector<std::pair<Key, Payload>> data{};
-    data.reserve(dataset_size);
-    data = dataset::load_cached<Key>(did, dataset_size);
-    std::vector<Key> keys;
-    keys.reserve(data.size());
-    std::transform(data.begin(), data.end(), std::back_inserter(keys),
-                    [](const auto& p) { return p.first; });
+    std::vector<Key> keys = dataset::load_cached<Key>(did, dataset_size);;
 
     if (data.empty()) {
       // otherwise google benchmark produces an error ;(
