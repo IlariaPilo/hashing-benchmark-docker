@@ -55,4 +55,18 @@ HashCategories get_fn_type() {
     return it->second;
 }
 
+// Define a helper type trait to check if 'train' member function exists
+template <typename T>
+struct has_train_member {
+private:
+    template <typename C>
+    static constexpr auto check(C*) -> typename std::is_same<decltype(std::declval<C>().train(std::declval<typename C::iterator>(), std::declval<typename C::iterator>(), 0)), void>::type;
+
+    template <typename>
+    static constexpr std::false_type check(...);
+
+public:
+    static constexpr bool value = std::is_same<decltype(check<T>(nullptr)), std::true_type>::value;
+};
+
 #endif

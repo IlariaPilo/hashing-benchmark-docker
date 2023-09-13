@@ -109,14 +109,16 @@ static void CollisionStats(benchmark::State& state) {
     prev_fn = new HashFn();
     free_fn = []() { delete ((HashFn*)prev_fn); };
 
-    if (is_learned<HashFn>()) {
+    HashFn fn = *(static_cast<HashFn*>(prev_fn));
+
+    if constexpr (has_train_member<decltype(fn)>::value) {
       // train model on sorted data
       // obtain list of keys -> necessary for model training
       std::vector<Key> keys;
       keys.reserve(data.size());
       std::transform(data.begin(), data.end(), std::back_inserter(keys),
                      [](const auto& p) { return p.first; });
-      prev_fn.train(keys.begin(), keys.end(), dataset_size);
+      fn.train(keys.begin(), keys.end(), dataset_size);
     }
 
     // measure time elapsed
@@ -149,13 +151,16 @@ static void CollisionStats(benchmark::State& state) {
         case HashCategories::PERFECT:
         case HashCategories::CLASSIC:
           _start_ = std::chrono::steady_clock::now();
-          index = prev_fn(key)%dataset_size;
-          _end_ = = std::chrono::steady_clock::now();
+          index = fn(key)%dataset_size;
+          _end_ = std::chrono::steady_clock::now();
           break;
         case HashCategories::LEARNED:
           _start_ = std::chrono::steady_clock::now();
-          index = prev_fn(key)/dataset_size;
-          _end_ = = std::chrono::steady_clock::now();
+          index = fn(key)/dataset_size;
+          _end_ = std::chrono::steady_clock::now();
+          break;
+        // to remove the warning
+        case HashCategories::UNKNOWN:
           break;
       }
       hash_v[index]++;
@@ -196,11 +201,11 @@ static void CollisionStats(benchmark::State& state) {
   state.counters["tot_time_s"] = tot_time.count();
   state.counters["collisions"] = collisions_count;
 
-  std::stringstream ss;
-  ss << succ_probability;
-  std::string temp = ss.str();
-  state.SetLabel("Collisions:" + table->name() + ":" + dataset::name(did) + ":" +
-                 dataset::name(probing_dist)+":"+temp);
+  // std::stringstream ss;
+  // ss << succ_probability;
+  // std::string temp = ss.str();
+  state.SetLabel("Collisions:" + std::string(typeid(HashFn).name()) + ":" + dataset::name(did) + ":" +
+                 dataset::name(probing_dist));
 }
 
 using namespace masters_thesis;
