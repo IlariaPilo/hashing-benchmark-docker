@@ -108,11 +108,9 @@ static void CollisionStats(benchmark::State& state) {
 
     HashFn& fn = *static_cast<HashFn*>(prev_fn);
 
+    // LEARNED FN
     if constexpr (has_train_member<decltype(fn)>::value) {
       // train model on sorted data
-      // obtain list of keys -> necessary for model training
-      // in case we are in a model fn
-      // ensure data is sorted - we trust it, too slow :3
       std::sort(data.begin(), data.end(),
                [](const auto& a, const auto& b) { return a.first < b.first; });
       std::vector<Key> keys;
@@ -120,6 +118,17 @@ static void CollisionStats(benchmark::State& state) {
       std::transform(data.begin(), data.end(), std::back_inserter(keys),
                      [](const auto& p) { return p.first; });
       fn.train(keys.begin(), keys.end(), dataset_size);
+    }
+    // PERFECT FN
+    if constexpr (has_construct_member<decltype(fn)>::value) {
+      // construct perfect hash table
+      std::sort(data.begin(), data.end(),
+               [](const auto& a, const auto& b) { return a.first < b.first; });
+      std::vector<Key> keys;
+      keys.reserve(data.size());
+      std::transform(data.begin(), data.end(), std::back_inserter(keys),
+                     [](const auto& p) { return p.first; });
+      fn.construct(keys.begin(), keys.end());
     }
 
     // measure time elapsed
@@ -276,11 +285,11 @@ using namespace masters_thesis;
   // CollisionBM(PGMHash_32, 32);
   // CollisionBM(PGMHash_100k, 100000);
 
-  CollisionBM(MURMUR,0);
-  CollisionBM(MultPrime64,0);
-  CollisionBM(FibonacciPrime64,0);
-  CollisionBM(AquaHash,0);
-  CollisionBM(XXHash3,0);
+  // CollisionBM(MURMUR,0);
+  // CollisionBM(MultPrime64,0);
+  // CollisionBM(FibonacciPrime64,0);
+  // CollisionBM(AquaHash,0);
+  // CollisionBM(XXHash3,0);
   CollisionBM(MWHC,0);
   CollisionBM(BitMWHC,0);
   CollisionBM(RecSplit,0);

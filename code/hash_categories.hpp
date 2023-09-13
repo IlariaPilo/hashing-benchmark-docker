@@ -78,5 +78,18 @@ private:
 public:
     static constexpr bool value = std::is_same<decltype(check<T>(nullptr)), std::true_type>::value;
 };
+// Define a helper type trait to check if 'construct' member function exists
+template <typename T>
+struct has_construct_member {
+private:
+    template <typename C>
+    static constexpr auto check(C*) -> typename std::is_same<decltype(std::declval<C>().construct(std::declval<typename C::iterator>(), std::declval<typename C::iterator>(), 0)), void>::type;
+
+    template <typename>
+    static constexpr std::false_type check(...);
+
+public:
+    static constexpr bool value = std::is_same<decltype(check<T>(nullptr)), std::true_type>::value;
+};
 
 #endif
