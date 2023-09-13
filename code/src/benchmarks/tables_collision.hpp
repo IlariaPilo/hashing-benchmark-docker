@@ -83,7 +83,7 @@ static void CollisionStats(benchmark::State& state) {
 
     std::vector<Key> keys = dataset::load_cached<Key>(did, dataset_size);;
 
-    if (data.empty()) {
+    if (keys.empty()) {
       // otherwise google benchmark produces an error ;(
       for (auto _ : state) {
       }
