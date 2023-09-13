@@ -59,7 +59,7 @@ std::vector<Key> probing_set{};
 void* prev_fn = nullptr;
 std::function<void()> free_fn = []() {};
 std::chrono::duration<double> tot_time(0);
-size_t collisions_count = 0;
+size_t collisions_count;
 
 
 template <class HashFn, size_t RangeSize>
@@ -144,7 +144,8 @@ static void CollisionStats(benchmark::State& state) {
       return;
     }
     size_t index;
-    std::chrono::time_point<std::chrono::steady_clock> _start_, _end_; 
+    std::chrono::time_point<std::chrono::steady_clock> _start_, _end_;
+    tot_time = std::chrono::duration<double>(0); // Reset tot_time to zero 
 
     for (auto key : probing_set) {
       switch(type) {
@@ -166,7 +167,7 @@ static void CollisionStats(benchmark::State& state) {
       hash_v[index]++;
       tot_time += _end_ - _start_;
     }
-
+    collisions_count = 0;
     // count collisions
     for (size_t i=0; i<dataset_size; i++) {
       if (hash_v[i] != 0)
