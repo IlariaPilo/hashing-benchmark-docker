@@ -54,7 +54,6 @@ const std::vector<std::int64_t> datasets{
 };
 
 std::string previous_signature = "";
-std::vector<Key> probing_set{};
 
 void* prev_fn = nullptr;
 std::function<void()> free_fn = []() {};
@@ -84,7 +83,11 @@ static void CollisionStats(benchmark::State& state) {
 
     std::vector<std::pair<Key, Payload>> data{};
     data.reserve(dataset_size);
-    probing_set = dataset::load_cached<Key>(did, dataset_size);
+    data = dataset::load_cached<Key>(did, dataset_size);
+    std::vector<Key> keys;
+    keys.reserve(data.size());
+    std::transform(data.begin(), data.end(), std::back_inserter(keys),
+                    [](const auto& p) { return p.first; });
 
     if (data.empty()) {
       // otherwise google benchmark produces an error ;(
@@ -113,12 +116,6 @@ static void CollisionStats(benchmark::State& state) {
       std::cout << "Learned function training starting...";
       #endif
       // train model on sorted data
-      std::sort(data.begin(), data.end(),
-               [](const auto& a, const auto& b) { return a.first < b.first; });
-      std::vector<Key> keys;
-      keys.reserve(data.size());
-      std::transform(data.begin(), data.end(), std::back_inserter(keys),
-                     [](const auto& p) { return p.first; });
       fn.train(keys.begin(), keys.end(), dataset_size);
       #if PRINT
       std::cout << " done." << std::endl;
@@ -131,12 +128,6 @@ static void CollisionStats(benchmark::State& state) {
       std::cout << "Perfect function construction starting...";
       #endif
       // construct perfect hash table
-      std::sort(data.begin(), data.end(),
-               [](const auto& a, const auto& b) { return a.first < b.first; });
-      std::vector<Key> keys;
-      keys.reserve(data.size());
-      std::transform(data.begin(), data.end(), std::back_inserter(keys),
-                     [](const auto& p) { return p.first; });
       fn.construct(keys.begin(), keys.end());
       #if PRINT
       std::cout << " done." << std::endl;
@@ -172,7 +163,7 @@ static void CollisionStats(benchmark::State& state) {
     std::chrono::time_point<std::chrono::steady_clock> _start_, _end_;
     tot_time = std::chrono::duration<double>(0); // Reset tot_time to zero 
 
-    for (auto key : probing_set) {
+    for (auto key : keys) {
       switch(type) {
         case HashCategories::PERFECT:
         case HashCategories::CLASSIC:
