@@ -113,6 +113,7 @@ static void CollisionStats(benchmark::State& state) {
     std::cout << "has_construct<HashFn>: " << has_construct<HashFn> << std::endl;
     #endif
     // LEARNED FN
+    // FIXME
     if constexpr (has_train<HashFn>) {
       #if PRINT
       std::cout << "Learned function training starting...";
@@ -130,7 +131,8 @@ static void CollisionStats(benchmark::State& state) {
       #endif
     }
     // PERFECT FN
-    //if constexpr (has_construct<HashFn>) {
+    // FIXME
+    if constexpr (has_construct<HashFn>) {
       #if PRINT
       std::cout << "Perfect function construction starting...";
       #endif
@@ -145,7 +147,7 @@ static void CollisionStats(benchmark::State& state) {
       #if PRINT
       std::cout << " done." << std::endl;
       #endif
-    //}
+    }
 
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
@@ -160,6 +162,9 @@ static void CollisionStats(benchmark::State& state) {
     // TODO START HERE AND DO ALL OTHER UTILITIES FUNCTIONS
     std::vector<size_t> hash_v;
     hash_v.resize(dataset_size, 0);
+    for (auto entry : hash_v) {
+      assert(entry == 0);
+    }
     HashCategories type = get_fn_type<HashFn>();
 
     if (type == HashCategories::UNKNOWN) {
@@ -305,9 +310,9 @@ using namespace masters_thesis;
   // CollisionBM(MultPrime64,0);
   // CollisionBM(FibonacciPrime64,0);
   // CollisionBM(AquaHash,0);
-  // CollisionBM(XXHash3,0);
-  CollisionBM(MWHC,0);
-  CollisionBM(BitMWHC,0);
-  CollisionBM(RecSplit,0);
+  CollisionBM(XXHash3,0);
+  // CollisionBM(MWHC,0);
+  // CollisionBM(BitMWHC,0);
+  // CollisionBM(RecSplit,0);
 
 }  // namespace _
