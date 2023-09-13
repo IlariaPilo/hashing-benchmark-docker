@@ -201,7 +201,7 @@ static void CollisionStats(benchmark::State& state) {
     collisions_count = 0;
     // count collisions
     for (size_t i=0; i<dataset_size; i++) {
-      if (hash_v[i] != 0)
+      if (hash_v[i] > 1)
         collisions_count++;
     }
     // ********************************************************************** //
