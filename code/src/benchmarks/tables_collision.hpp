@@ -48,8 +48,8 @@ const std::vector<std::int64_t> datasets{
     static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::GAPPED_10),
     static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::UNIFORM),
     static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::NORMAL),
-    static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::SEQUENTIAL),
-    static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::OSM),
+    // static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::SEQUENTIAL),
+    // static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::OSM),
     static_cast<std::underlying_type_t<dataset::ID>>(dataset::ID::FB)
 };
 
@@ -70,11 +70,12 @@ static void CollisionStats(benchmark::State& state) {
   const auto probing_dist =
       static_cast<dataset::ProbingDistribution>(state.range(2));
   //const auto succ_probability = static_cast<size_t>(state.range(3));    
+  const auto extra = static_cast<size_t>(state.range(3)); 
 
   std::string signature =
       std::string(typeid(HashFn).name()) + "_" + std::to_string(RangeSize) +
       "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
-      dataset::name(probing_dist);
+      dataset::name(probing_dist) + "_" + std::to_string(extra);
   if (previous_signature != signature) {
     #if PRINT
     std::cout << "performing setup... ";
@@ -99,21 +100,21 @@ static void CollisionStats(benchmark::State& state) {
       return;
     }
     // at this point, we have ------ std::vector<std::pair<Key, Payload>> data
-    // in case we are in a model fn
-    // ensure data is sorted - we trust it, too slow :3
-    // std::sort(data.begin(), data.end(),
-    //          [](const auto& a, const auto& b) { return a.first < b.first; });
 
     // build function
     if (prev_fn != nullptr) free_fn();
     prev_fn = new HashFn();
     free_fn = []() { delete ((HashFn*)prev_fn); };
 
-    HashFn fn = *(static_cast<HashFn*>(prev_fn));
+    HashFn& fn = *static_cast<HashFn*>(prev_fn);
 
     if constexpr (has_train_member<decltype(fn)>::value) {
       // train model on sorted data
       // obtain list of keys -> necessary for model training
+      // in case we are in a model fn
+      // ensure data is sorted - we trust it, too slow :3
+      std::sort(data.begin(), data.end(),
+               [](const auto& a, const auto& b) { return a.first < b.first; });
       std::vector<Key> keys;
       keys.reserve(data.size());
       std::transform(data.begin(), data.end(), std::back_inserter(keys),
@@ -182,6 +183,7 @@ static void CollisionStats(benchmark::State& state) {
   #if PRINT
   if (previous_signature != signature) {
     std::cout<<std::endl<<" Dataset Size: "<<std::to_string(dataset_size) <<" Dataset: "<< dataset::name(did)<<std::endl;
+  
   }
   #endif
 
@@ -191,8 +193,7 @@ static void CollisionStats(benchmark::State& state) {
   for (auto _ : state) {
     // auto it = table->useless_func();
     // benchmark::DoNotOptimize(it);
-    // TODO -- add logic to count collisions
-    __sync_synchronize();
+    // __sync_synchronize();
   }
   // // set counters (don't do this in inner loop to avoid tainting results)
   // state.counters["table_bytes"] = table->byte_size();
@@ -201,38 +202,87 @@ static void CollisionStats(benchmark::State& state) {
   state.counters["data_elem_count"] = dataset_size;
   state.counters["tot_time_s"] = tot_time.count();
   state.counters["collisions"] = collisions_count;
+  state.counters["dataset_id"] = static_cast<int>(did);;
+  state.counters["extra"] = extra;
 
   // std::stringstream ss;
   // ss << succ_probability;
   // std::string temp = ss.str();
   state.SetLabel("Collisions:" + std::string(typeid(HashFn).name()) + ":" + dataset::name(did) + ":" +
-                 dataset::name(probing_dist));
+                 dataset::name(probing_dist) + ":" + std::to_string(extra));
 }
 
 using namespace masters_thesis;
 
-#define CollisionBM(HashFn)                                                         \
+#define CollisionBM(HashFn, extra)                                                         \
   BENCHMARK_TEMPLATE(CollisionStats, HashFn, 0)                                     \
-      ->ArgsProduct({dataset_sizes, datasets, probe_distributions});
+      ->ArgsProduct({dataset_sizes, datasets, probe_distributions, {extra}});
 
 	// Function aliases definition
-	// using RMIHash = learned_hashing::RMIHash<std::uint64_t,100>;
+	using RMIHash_10 = learned_hashing::RMIHash<std::uint64_t,10>;
+  using RMIHash_100 = learned_hashing::RMIHash<std::uint64_t,100>;
+  using RMIHash_1k = learned_hashing::RMIHash<std::uint64_t,1000>;
+  using RMIHash_10k = learned_hashing::RMIHash<std::uint64_t,10000>;
+  using RMIHash_100k = learned_hashing::RMIHash<std::uint64_t,100000>;
+  using RMIHash_1M = learned_hashing::RMIHash<std::uint64_t,1000000>;
+  using RMIHash_10M = learned_hashing::RMIHash<std::uint64_t,10000000>;
+  using RMIHash_100M = learned_hashing::RMIHash<std::uint64_t,100000000>;
 
-	// using RadixSplineHash = learned_hashing::RadixSplineHash<std::uint64_t,18,1024,100000000>;
+	using RadixSplineHash_10 = learned_hashing::RadixSplineHash<std::uint64_t,18,1024,10>;
+  using RadixSplineHash_100 = learned_hashing::RadixSplineHash<std::uint64_t,18,1024,100>;
+  using RadixSplineHash_1k = learned_hashing::RadixSplineHash<std::uint64_t,18,1024,1000>;
+  using RadixSplineHash_10k = learned_hashing::RadixSplineHash<std::uint64_t,18,1024,10000>;
+  using RadixSplineHash_100k = learned_hashing::RadixSplineHash<std::uint64_t,18,1024,100000>;
+  using RadixSplineHash_1M = learned_hashing::RadixSplineHash<std::uint64_t,18,1024,1000000>;
+  using RadixSplineHash_10M = learned_hashing::RadixSplineHash<std::uint64_t,18,1024,10000000>;
+  using RadixSplineHash_100M = learned_hashing::RadixSplineHash<std::uint64_t,18,1024,100000000>;
 
-	// using PGMHash = learned_hashing::PGMHash<std::uint64_t,10,10,500000000,float>;
+	using PGMHash_100k = learned_hashing::PGMHash<std::uint64_t,100000,100000,500000000,float>;
+  using PGMHash_1k = learned_hashing::PGMHash<std::uint64_t,1024,1024,500000000,float>;
+  using PGMHash_100 = learned_hashing::PGMHash<std::uint64_t,128,128,500000000,float>;
+  using PGMHash_32 = learned_hashing::PGMHash<std::uint64_t,32,32,500000000,float>;
+  using PGMHash_2 = learned_hashing::PGMHash<std::uint64_t,2,2,500000000,float>;
 
 	using MURMUR = hashing::MurmurFinalizer<Key>;
-	// using MultPrime64 = hashing::MultPrime64;
-	// using FibonacciPrime64 = hashing::FibonacciPrime64;
-	// using AquaHash = hashing::AquaHash<Key>;
-	// using XXHash3 = hashing::XXHash3<Key>;
-	// using MWHC = exotic_hashing::MWHC<Key>;
-	// using BitMWHC = exotic_hashing::BitMWHC<Key>;
-	// using RecSplit = exotic_hashing::RecSplit<std::uint64_t>;
+	using MultPrime64 = hashing::MultPrime64;
+	using FibonacciPrime64 = hashing::FibonacciPrime64;
+	using AquaHash = hashing::AquaHash<Key>;
+	using XXHash3 = hashing::XXHash3<Key>;
+	using MWHC = exotic_hashing::MWHC<Key>;
+	using BitMWHC = exotic_hashing::BitMWHC<Key>;
+	using RecSplit = exotic_hashing::RecSplit<std::uint64_t>;
 
-  CollisionBM(MURMUR);
+  CollisionBM(RMIHash_10, 10);
+  CollisionBM(RMIHash_100, 100);
+  CollisionBM(RMIHash_1k, 1000);
+  CollisionBM(RMIHash_10k, 10000);
+  CollisionBM(RMIHash_100k, 100000);
+  CollisionBM(RMIHash_1M, 1000000);
+  CollisionBM(RMIHash_10M, 10000000);
+  CollisionBM(RMIHash_100M, 100000000);
 
+  CollisionBM(RadixSplineHash_10, 10);
+  CollisionBM(RadixSplineHash_100, 100);
+  CollisionBM(RadixSplineHash_1k, 1000);
+  CollisionBM(RadixSplineHash_10k, 10000);
+  CollisionBM(RadixSplineHash_100k, 100000);
+  CollisionBM(RadixSplineHash_1M, 1000000);
+  CollisionBM(RadixSplineHash_10M, 10000000);
+  CollisionBM(RadixSplineHash_100M, 100000000);
 
+  CollisionBM(PGMHash_2, 2);
+  CollisionBM(PGMHash_100, 100);
+  CollisionBM(PGMHash_1k, 1000);
+  CollisionBM(PGMHash_32, 32);
+  CollisionBM(PGMHash_100k, 100000);
+
+  CollisionBM(MURMUR,0);
+  CollisionBM(MultPrime64,0);
+  CollisionBM(FibonacciPrime64,0);
+  CollisionBM(AquaHash,0);
+  CollisionBM(XXHash3,0);
+  CollisionBM(MWHC,0);
+  CollisionBM(BitMWHC,0);
+  CollisionBM(RecSplit,0);
 
 }  // namespace _
