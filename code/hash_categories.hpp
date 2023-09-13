@@ -26,14 +26,17 @@ const std::unordered_map<std::string, HashCategories> HASH_FN_TYPES = {
     {"RecSplit", HashCategories::PERFECT}
 };
 
-std::string get_map_entry(std::string full_name) {
-    // get underscore position
-    size_t _pos_ = full_name.find('_');
-    if (_pos_ != std::string::npos) {
-        return full_name;
-    } else {
-        return full_name.substr(0, _pos_);
+HashCategories get_category(std::string full_name) {
+    for (const auto& pair : HASH_FN_TYPES) {
+        std::string name = pair.first;
+        size_t pos = full_name.find(name);
+        // Check if "MurmurFinalizer" was found
+        if (pos != std::string::npos) {
+            return pair.second;
+        }
     }
+    // nothing was found
+    return HashCategories::UNKNOWN;
 }
 
 
@@ -42,32 +45,25 @@ std::string get_map_entry(std::string full_name) {
 template <typename T>
 bool is_learned() {
     std::string full_name = typeid(T).name();
-    std::string name = get_map_entry(full_name);
-    auto it = HASH_FN_TYPES.find(name);
-    return (it != HASH_FN_TYPES.end() && it->second == HashCategories::LEARNED);
+    HashCategories type = get_category(full_name);
+    return (type == HashCategories::LEARNED);
 }
 template <typename T>
 bool is_classic() {
     std::string full_name = typeid(T).name();
-    std::string name = get_map_entry(full_name);
-    auto it = HASH_FN_TYPES.find(name);
-    return (it != HASH_FN_TYPES.end() && it->second == HashCategories::CLASSIC);
+    HashCategories type = get_category(full_name);
+    return (type == HashCategories::CLASSIC);
 }
 template <typename T>
 bool is_perfect() {
     std::string full_name = typeid(T).name();
-    std::string name = get_map_entry(full_name);
-    auto it = HASH_FN_TYPES.find(name);
-    return (it != HASH_FN_TYPES.end() && it->second == HashCategories::PERFECT);
+    HashCategories type = get_category(full_name);
+    return (type == HashCategories::PERFECT);
 }
 template <typename T>
 HashCategories get_fn_type() {
     std::string full_name = typeid(T).name();
-    std::string name = get_map_entry(full_name);
-    auto it = HASH_FN_TYPES.find(name);
-    if (it == HASH_FN_TYPES.end())
-        return HashCategories::UNKNOWN;
-    return it->second;
+    return get_category(full_name);
 }
 
 // Define a helper type trait to check if 'train' member function exists
