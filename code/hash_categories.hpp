@@ -16,7 +16,7 @@ const std::unordered_map<std::string, HashCategories> HASH_FN_TYPES = {
     {"RMIHash", HashCategories::LEARNED},
     {"RadixSplineHash", HashCategories::LEARNED},
     {"PGMHash", HashCategories::LEARNED},
-    {"MURMUR", HashCategories::CLASSIC},
+    {"MurmurFinalizer", HashCategories::CLASSIC},
     {"MultPrime64", HashCategories::CLASSIC},
     {"FibonacciPrime64", HashCategories::CLASSIC},
     {"AquaHash", HashCategories::CLASSIC},
@@ -30,7 +30,6 @@ HashCategories get_category(std::string full_name) {
     for (const auto& pair : HASH_FN_TYPES) {
         std::string name = pair.first;
         size_t pos = full_name.find(name);
-        // Check if "MurmurFinalizer" was found
         if (pos != std::string::npos) {
             return pair.second;
         }
