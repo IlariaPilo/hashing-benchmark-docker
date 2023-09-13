@@ -17,8 +17,7 @@ const std::unordered_map<std::string, HashCategories> HASH_FN_TYPES = {
     {"RadixSplineHash", HashCategories::LEARNED},
     {"PGMHash", HashCategories::LEARNED},
     {"MurmurFinalizer", HashCategories::CLASSIC},
-    {"MultPrime64", HashCategories::CLASSIC},
-    {"FibonacciPrime64", HashCategories::CLASSIC},
+    {"MultiplicationHash", HashCategories::CLASSIC},
     {"AquaHash", HashCategories::CLASSIC},
     {"XXHash3", HashCategories::CLASSIC},
     {"MWHC", HashCategories::PERFECT},
@@ -35,6 +34,7 @@ HashCategories get_category(std::string full_name) {
         }
     }
     // nothing was found
+    std::cout << full_name << std::endl;
     return HashCategories::UNKNOWN;
 }
 
