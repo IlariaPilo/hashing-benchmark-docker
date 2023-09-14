@@ -117,7 +117,7 @@ static void CollisionStats(benchmark::State& state) {
     }
     // PERFECT FN
     // FIXME
-    //if constexpr (has_construct<HashFn>) {
+    if constexpr (has_construct<HashFn>) {
       #if PRINT
       std::cout << "Perfect function construction starting...";
       #endif
@@ -126,7 +126,7 @@ static void CollisionStats(benchmark::State& state) {
       #if PRINT
       std::cout << " done." << std::endl;
       #endif
-    //}
+    }
 
     // measure time elapsed
     const auto end = std::chrono::steady_clock::now();
@@ -261,7 +261,7 @@ using namespace masters_thesis;
 	using BitMWHC = exotic_hashing::BitMWHC<Key>;
 	using RecSplit = exotic_hashing::RecSplit<std::uint64_t>;
 
-  // CollisionBM(RMIHash_10, 10);
+  CollisionBM(RMIHash_10, 10);
   // CollisionBM(RMIHash_100, 100);
   // CollisionBM(RMIHash_1k, 1000);
   // CollisionBM(RMIHash_10k, 10000);
@@ -290,7 +290,7 @@ using namespace masters_thesis;
   // CollisionBM(FibonacciPrime64,0);
   // CollisionBM(AquaHash,0);
   // CollisionBM(XXHash3,0);
-  CollisionBM(MWHC,0);
+  // CollisionBM(MWHC,0);
   // CollisionBM(BitMWHC,0);
   // CollisionBM(RecSplit,0);
 

@@ -65,12 +65,18 @@ HashCategories get_fn_type() {
     return get_category(full_name);
 }
 
-// Define a helper type trait to check if 'train' member function exists
+// Define a helper type trait to check if 'train' member function exists with the desired signature
 template <typename T, typename = void> struct has_train_sfinae : std::false_type {};
-template <typename T> struct has_train_sfinae<T,
-    decltype(void(std::declval<T &>().train(std::declval<const typename T::value_type &>())))
+template <typename T>
+struct has_train_sfinae<T,
+    decltype(void(std::declval<T>().train(std::declval<const typename T::value_type &>(),
+                                           std::declval<const typename T::value_type &>(),
+                                           std::declval<const size_t>(),
+                                           std::declval<bool>())))
 > : std::true_type {};
-template <typename T> inline constexpr bool has_train = has_train_sfinae<T>::value;
+
+template <typename T>
+inline constexpr bool has_train = has_train_sfinae<T>::value;
 
 // Define a helper type trait to check if 'construct' member function exists
 template <typename T, typename = void> struct has_construct_sfinae : std::false_type {};
