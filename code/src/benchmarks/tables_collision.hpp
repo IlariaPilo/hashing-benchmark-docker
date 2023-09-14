@@ -31,8 +31,7 @@
 #include "include/mmphf/rank_hash.hpp"
 #include "include/rmi.hpp"
 
-namespace _
-{
+namespace _ {
   using Key = std::uint64_t;
   using Payload = std::uint64_t;
 
@@ -60,8 +59,7 @@ namespace _
   size_t collisions_count;
 
   template <class HashFn, size_t RangeSize>
-  static void CollisionStats(benchmark::State &state)
-  {
+  static void CollisionStats(benchmark::State &state) {
     // Extract variables
     const auto dataset_size = static_cast<size_t>(state.range(0));
     const auto did = static_cast<dataset::ID>(state.range(1));
@@ -74,21 +72,18 @@ namespace _
         std::string(typeid(HashFn).name()) + "_" + std::to_string(RangeSize) +
         "_" + std::to_string(dataset_size) + "_" + dataset::name(did) + "_" +
         dataset::name(probing_dist) + "_" + std::to_string(extra);
-    if (previous_signature != signature)
-    {
-#if PRINT
+    if (previous_signature != signature) {
+      #if PRINT
       std::cout << "performing setup... ";
-#endif
+      #endif
       auto start = std::chrono::steady_clock::now();
 
       std::vector<Key> keys = dataset::load_cached<Key>(did, dataset_size);
       ;
 
-      if (keys.empty())
-      {
+      if (keys.empty()) {
         // otherwise google benchmark produces an error ;(
-        for (auto _ : state)
-        {
+        for (auto _ : state) {
         }
         std::cerr << "failed" << std::endl;
         return;
@@ -98,65 +93,61 @@ namespace _
       // build function
       if (prev_fn != nullptr)
         free_fn();
+      
       prev_fn = new HashFn();
       free_fn = []()
       { delete ((HashFn *)prev_fn); };
 
       HashFn &fn = *static_cast<HashFn *>(prev_fn);
 
-#if PRINT
+      #if PRINT
       std::cout << "has_train<HashFn>: " << has_train_method<HashFn>::value << std::endl;
       std::cout << "has_construct<HashFn>: " << has_construct_method<HashFn>::value << std::endl;
-#endif
+      #endif
       // LEARNED FN
-      if constexpr (has_train_method<HashFn>::value)
-      {
-#if PRINT
+      if constexpr (has_train_method<HashFn>::value) {
+        #if PRINT
         std::cout << "Learned function training starting...";
-#endif
+        #endif
         // train model on sorted data
         fn.train(keys.begin(), keys.end(), dataset_size);
-#if PRINT
+        #if PRINT
         std::cout << " done." << std::endl;
-#endif
+        #endif
       }
       // PERFECT FN
-      if constexpr (has_construct_method<HashFn>::value)
-      {
-#if PRINT
+      if constexpr (has_construct_method<HashFn>::value) {
+        #if PRINT
         std::cout << "Perfect function construction starting...";
-#endif
+        #endif
         // construct perfect hash table
         fn.construct(keys.begin(), keys.end());
-#if PRINT
+        #if PRINT
         std::cout << " done." << std::endl;
-#endif
+        #endif
       }
 
       // measure time elapsed
       const auto end = std::chrono::steady_clock::now();
       std::chrono::duration<double> diff = end - start;
-#if PRINT
+      #if PRINT
       std::cout << "succeeded in " << std::setw(9) << diff.count() << " seconds"
                 << std::endl;
-#endif
+      #endif
 
       // ********************************************************************** //
       // logic to count collisions - maybe move in the loop
 
       std::vector<size_t> hash_v;
       hash_v.resize(dataset_size, 0);
-      for (auto entry : hash_v)
-      {
-        assert(entry == 0);
-      }
+      // for (auto entry : hash_v) {
+      //   assert(entry == 0);
+      // }
       HashCategories type = get_fn_type<HashFn>();
 
-      if (type == HashCategories::UNKNOWN)
-      {
-        // maybe remove this for? it depends on the position
-        for (auto _ : state)
-        {
+      if (type == HashCategories::UNKNOWN) {
+        // TODO maybe remove this for? it depends on the position
+        for (auto _ : state) {
         }
         std::cerr << "Type is unknown. Failed :(" << std::endl;
         return;
@@ -165,34 +156,31 @@ namespace _
       std::chrono::time_point<std::chrono::steady_clock> _start_, _end_;
       tot_time = std::chrono::duration<double>(0); // Reset tot_time to zero
 
-      for (auto key : keys)
-      {
-        switch (type)
-        {
-        case HashCategories::PERFECT:
-        case HashCategories::CLASSIC:
-          _start_ = std::chrono::steady_clock::now();
-          index = fn(key) % dataset_size;
-          _end_ = std::chrono::steady_clock::now();
-          break;
-        case HashCategories::LEARNED:
-          _start_ = std::chrono::steady_clock::now();
-          index = fn(key) / dataset_size;
-          _end_ = std::chrono::steady_clock::now();
-          break;
-        // to remove the warning
-        case HashCategories::UNKNOWN:
-          break;
+      for (auto key : keys) {
+        switch (type) {
+          case HashCategories::PERFECT:
+          case HashCategories::CLASSIC:
+            _start_ = std::chrono::steady_clock::now();
+            index = fn(key) % dataset_size;
+            _end_ = std::chrono::steady_clock::now();
+            break;
+          case HashCategories::LEARNED:
+            _start_ = std::chrono::steady_clock::now();
+            index = fn(key) / dataset_size;
+            _end_ = std::chrono::steady_clock::now();
+            break;
+          // to remove the warning
+          case HashCategories::UNKNOWN:
+            break;
         }
         hash_v[index]++;
         tot_time += _end_ - _start_;
       }
       collisions_count = 0;
       // count collisions
-      for (size_t i = 0; i < dataset_size; i++)
-      {
+      for (size_t i = 0; i < dataset_size; i++) {
         if (hash_v[i] > 1)
-          collisions_count++;
+          collisions_count += hash_v[i];
       }
       // ********************************************************************** //
     }
@@ -200,19 +188,17 @@ namespace _
     // assert(prev_fn != nullptr);
     // HashFn* fn = (HashFn*)prev_fn;
 
-#if PRINT
-    if (previous_signature != signature)
-    {
+    #if PRINT
+    if (previous_signature != signature) {
       std::cout << std::endl
                 << " Dataset Size: " << std::to_string(dataset_size) << " Dataset: " << dataset::name(did) << std::endl;
     }
-#endif
+    #endif
 
     previous_signature = signature;
 
     size_t i = 0;
-    for (auto _ : state)
-    {
+    for (auto _ : state) {
       // auto it = table->useless_func();
       // benchmark::DoNotOptimize(it);
       // __sync_synchronize();
@@ -225,7 +211,6 @@ namespace _
     state.counters["tot_time_s"] = tot_time.count();
     state.counters["collisions"] = collisions_count;
     state.counters["dataset_id"] = static_cast<int>(did);
-    ;
     state.counters["extra"] = extra;
 
     // std::stringstream ss;
