@@ -100,12 +100,12 @@ static void CollisionStats(benchmark::State& state) {
     HashFn& fn = *static_cast<HashFn*>(prev_fn);
 
     #if PRINT
-    std::cout << "has_train<HashFn>: " << has_train<HashFn> << std::endl;
+    std::cout << "has_train<HashFn>: " << has_train_method<HashFn>::value << std::endl;
     std::cout << "has_construct<HashFn>: " << has_construct_method<HashFn>::value << std::endl;
     #endif
     // LEARNED FN
     // FIXME
-    if constexpr (has_train<HashFn>) {
+    if constexpr (has_train_method<HashFn>::value) {
       #if PRINT
       std::cout << "Learned function training starting...";
       #endif
@@ -116,7 +116,6 @@ static void CollisionStats(benchmark::State& state) {
       #endif
     }
     // PERFECT FN
-    // FIXME
     if constexpr (has_construct_method<HashFn>::value) {
       #if PRINT
       std::cout << "Perfect function construction starting...";
