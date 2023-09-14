@@ -57,6 +57,7 @@ namespace _ {
   std::function<void()> free_fn = []() {};
   std::chrono::duration<double> tot_time(0);
   size_t collisions_count;
+  size_t NOT_collisions_count;
 
   template <class HashFn, size_t RangeSize>
   static void CollisionStats(benchmark::State &state) {
@@ -177,10 +178,12 @@ namespace _ {
         tot_time += _end_ - _start_;
       }
       collisions_count = 0;
+      NOT_collisions_count = 0;
       // count collisions
       for (size_t i = 0; i < dataset_size; i++) {
         if (hash_v[i] > 1)
           collisions_count += hash_v[i];
+        else NOT_collisions_count += hash_v[i];
       }
       // ********************************************************************** //
     }
@@ -207,6 +210,8 @@ namespace _ {
     // state.counters["table_bytes"] = table->byte_size();
     // state.counters["table_directory_bytes"] = table->directory_byte_size();
     // state.counters["table_bits_per_key"] = 8. * table->byte_size() / dataset_size;
+    assert((collisions_count+NOT_collisions_count) == dataset_size);
+
     state.counters["data_elem_count"] = dataset_size;
     state.counters["tot_time_s"] = tot_time.count();
     state.counters["collisions"] = collisions_count;
