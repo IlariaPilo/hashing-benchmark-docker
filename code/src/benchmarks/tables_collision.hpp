@@ -80,7 +80,10 @@ namespace _ {
       auto start = std::chrono::steady_clock::now();
 
       std::vector<Key> keys = dataset::load_cached<Key>(did, dataset_size);
-      ;
+      // ensure keys are sorted
+      std::sort(keys.begin(), keys.end(),
+              [](const auto& a, const auto& b) { return a < b; });
+      
 
       if (keys.empty()) {
         // otherwise google benchmark produces an error ;(
@@ -265,29 +268,29 @@ namespace _ {
   using BitMWHC = exotic_hashing::BitMWHC<Key>;
   using RecSplit = exotic_hashing::RecSplit<std::uint64_t>;
 
-  // CollisionBM(RMIHash_10, 10);
-  // CollisionBM(RMIHash_100, 100);
-  // CollisionBM(RMIHash_1k, 1000);
-  // CollisionBM(RMIHash_10k, 10000);
-  // CollisionBM(RMIHash_100k, 100000);
-  // CollisionBM(RMIHash_1M, 1000000);
-  // CollisionBM(RMIHash_10M, 10000000);
-  // CollisionBM(RMIHash_100M, 100000000);
+  CollisionBM(RMIHash_10, 10);
+  CollisionBM(RMIHash_100, 100);
+  CollisionBM(RMIHash_1k, 1000);
+  CollisionBM(RMIHash_10k, 10000);
+  CollisionBM(RMIHash_100k, 100000);
+  CollisionBM(RMIHash_1M, 1000000);
+  CollisionBM(RMIHash_10M, 10000000);
+  CollisionBM(RMIHash_100M, 100000000);
 
-  // CollisionBM(RadixSplineHash_10, 10);
-  // CollisionBM(RadixSplineHash_100, 100);
-  // CollisionBM(RadixSplineHash_1k, 1000);
-  // CollisionBM(RadixSplineHash_10k, 10000);
-  // CollisionBM(RadixSplineHash_100k, 100000);
-  // CollisionBM(RadixSplineHash_1M, 1000000);
-  // CollisionBM(RadixSplineHash_10M, 10000000);
-  // CollisionBM(RadixSplineHash_100M, 100000000);
+  CollisionBM(RadixSplineHash_10, 10);
+  CollisionBM(RadixSplineHash_100, 100);
+  CollisionBM(RadixSplineHash_1k, 1000);
+  CollisionBM(RadixSplineHash_10k, 10000);
+  CollisionBM(RadixSplineHash_100k, 100000);
+  CollisionBM(RadixSplineHash_1M, 1000000);
+  CollisionBM(RadixSplineHash_10M, 10000000);
+  CollisionBM(RadixSplineHash_100M, 100000000);
 
-  // CollisionBM(PGMHash_2, 2);
-  // CollisionBM(PGMHash_100, 100);
-  // CollisionBM(PGMHash_1k, 1000);
-  // CollisionBM(PGMHash_32, 32);
-  // CollisionBM(PGMHash_100k, 100000);
+  CollisionBM(PGMHash_2, 2);
+  CollisionBM(PGMHash_100, 100);
+  CollisionBM(PGMHash_1k, 1000);
+  CollisionBM(PGMHash_32, 32);
+  CollisionBM(PGMHash_100k, 100000);
 
   CollisionBM(MURMUR,0);
   CollisionBM(MultPrime64,0);
