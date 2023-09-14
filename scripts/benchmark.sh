@@ -5,6 +5,42 @@ INITIAL_DIR=$(pwd)
 _source_dir_=$(dirname "$0")
 BASE_DIR=$(readlink -f "${_source_dir_}/..")     # /home/ilaria/Documents/stage/hashing-benchmark-docker
 
+# Default values
+thread_number=$(nproc --all)
+filter=""
+
+# Function to display usage information
+function show_usage {
+    echo "Usage: $0 [OPTIONS]"
+    echo "Options:"
+    echo "  -t, --threads THREADS     Number of threads to use (default: all)"
+    echo "  -f, --filter FILTER       Type of benchmarks to execute (default: all)"
+    echo "                            Available options: collisions (more to be added)"
+    echo "  -h, --help                Display this help message"
+    exit 1
+}
+
+# Parse command line options
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -t|--threads)
+            thread_number="$2"
+            shift 2
+            ;;
+        -f|--filter)
+            filter="$2"
+            shift 2
+            ;;
+        -h|--help)
+            show_usage
+            ;;
+        *)
+            echo "Invalid option: $1"
+            show_usage
+            ;;
+    esac
+done
+
 # go in the code directory
 cd $BASE_DIR/code
 source .env
@@ -12,17 +48,14 @@ source .env
 # Build the target
 ./build.sh benchmarks RELEASE
 
-# Get all benchmarks
-readarray -t all_bm < <(cmake-build-release/src/benchmarks --benchmark_list_tests | sed 's,/.*,*,' | uniq )
-# declare -p all_bm     # Check if the declaration went well
-
-# Get number of threads
-if [ $# -eq 0 ]; then
-  # Use default number
-  thread_number=$(nproc --all)
+# Get benchmarks
+if [[ "$filter" != "" ]]; then
+    readarray -t all_bm < <(cmake-build-release/src/benchmarks --benchmark_list_tests | grep -i "$filter" | sed 's,/.*,*,' | uniq )
+    filter="${filter}_"
 else
-  thread_number=$1
+    readarray -t all_bm < <(cmake-build-release/src/benchmarks --benchmark_list_tests | sed 's,/.*,*,' | uniq )
 fi
+# declare -p all_bm     # Check if the declaration went well
 
 echo -e "\n\033[1;96m [benchmark.sh] \033[0mRunning on $thread_number threads.\n"
 
@@ -61,7 +94,7 @@ echo -e "\n\033[1;96m [benchmark.sh] \033[0mBenchmark execution done!\n"
 
 # Create output file
 date_string=$(date +'%Y-%m-%d-%H-%M')
-output_file="../output/${date_string}_results.json"
+output_file="../output/${date_string}_${filter}results.json"
 touch $output_file
 
 # Compute introduction length
@@ -81,4 +114,4 @@ echo -e '\t]\n}' >> $output_file
 echo -e "\n\033[1;96m [benchmark.sh] \033[0mResult file is ready.\n"
 
 # Remove temporary files
-rm ../output/tmp*.json
+# rm ../output/tmp*.json
