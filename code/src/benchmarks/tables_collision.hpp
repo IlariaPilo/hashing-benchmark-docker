@@ -62,7 +62,7 @@ namespace _ {
   template <class HashFn, size_t RangeSize>
   static void CollisionStats(benchmark::State &state) {
     // Extract variables
-    const auto dataset_size = static_cast<size_t>(state.range(0));
+    auto dataset_size = static_cast<size_t>(state.range(0));
     const auto did = static_cast<dataset::ID>(state.range(1));
     const auto probing_dist =
         static_cast<dataset::ProbingDistribution>(state.range(2));
@@ -83,6 +83,13 @@ namespace _ {
       // ensure keys are sorted
       std::sort(keys.begin(), keys.end(),
               [](const auto& a, const auto& b) { return a < b; });
+      // remove duplicates
+      keys.erase(std::unique(keys.begin(), keys.end()), keys.end());
+      // reset dataset size
+      dataset_size = keys.size();
+      #if PRINT
+      std::cout << "new size is " << dataset_size << std::endl;
+      #endif
       
 
       if (keys.empty()) {
