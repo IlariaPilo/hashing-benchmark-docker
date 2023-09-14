@@ -166,14 +166,14 @@ namespace _ {
           case HashCategories::CLASSIC:
             _start_ = std::chrono::steady_clock::now();
             index = fn(key); // % dataset_size;
-            assert(index < dataset_size);
             _end_ = std::chrono::steady_clock::now();
+            assert(index<dataset_size && index>=0);
             break;
           case HashCategories::LEARNED:
             _start_ = std::chrono::steady_clock::now();
             index = fn(key); // /dataset_size;
             _end_ = std::chrono::steady_clock::now();
-            assert(index < dataset_size);
+            assert(index<dataset_size && index>=0);
             break;
           // to remove the warning
           case HashCategories::UNKNOWN:
