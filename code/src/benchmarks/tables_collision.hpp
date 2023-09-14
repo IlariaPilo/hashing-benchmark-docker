@@ -170,7 +170,7 @@ namespace _ {
             break;
           case HashCategories::LEARNED:
             _start_ = std::chrono::steady_clock::now();
-            index = fn(key) / dataset_size;
+            index = fn(key); // /dataset_size;
             _end_ = std::chrono::steady_clock::now();
             break;
           // to remove the warning
