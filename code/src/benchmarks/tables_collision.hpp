@@ -243,14 +243,11 @@ namespace _ {
   using RMIHash_10M = learned_hashing::RMIHash<std::uint64_t, 10000000>;
   using RMIHash_100M = learned_hashing::RMIHash<std::uint64_t, 100000000>;
 
-  using RadixSplineHash_10 = learned_hashing::RadixSplineHash<std::uint64_t, 18, 1024, 10>;
-  using RadixSplineHash_100 = learned_hashing::RadixSplineHash<std::uint64_t, 18, 1024, 100>;
-  using RadixSplineHash_1k = learned_hashing::RadixSplineHash<std::uint64_t, 18, 1024, 1000>;
-  using RadixSplineHash_10k = learned_hashing::RadixSplineHash<std::uint64_t, 18, 1024, 10000>;
-  using RadixSplineHash_100k = learned_hashing::RadixSplineHash<std::uint64_t, 18, 1024, 100000>;
-  using RadixSplineHash_1M = learned_hashing::RadixSplineHash<std::uint64_t, 18, 1024, 1000000>;
-  using RadixSplineHash_10M = learned_hashing::RadixSplineHash<std::uint64_t, 18, 1024, 10000000>;
-  using RadixSplineHash_100M = learned_hashing::RadixSplineHash<std::uint64_t, 18, 1024, 100000000>;
+  using RadixSplineHash_4 = learned_hashing::RadixSplineHash<std::uint64_t, 18, 4>;
+  using RadixSplineHash_16 = learned_hashing::RadixSplineHash<std::uint64_t, 18, 16>;
+  using RadixSplineHash_128 = learned_hashing::RadixSplineHash<std::uint64_t, 18, 128>;
+  using RadixSplineHash_1k = learned_hashing::RadixSplineHash<std::uint64_t, 18, 1024>;
+  using RadixSplineHash_100k = learned_hashing::RadixSplineHash<std::uint64_t, 18, 100000>;
 
   using PGMHash_100k = learned_hashing::PGMHash<std::uint64_t, 100000, 100000, 500000000, float>;
   using PGMHash_1k = learned_hashing::PGMHash<std::uint64_t, 1024, 1024, 500000000, float>;
@@ -276,14 +273,11 @@ namespace _ {
   CollisionBM(RMIHash_10M, 10000000);
   CollisionBM(RMIHash_100M, 100000000);
 
-  CollisionBM(RadixSplineHash_10, 10);
-  CollisionBM(RadixSplineHash_100, 100);
-  CollisionBM(RadixSplineHash_1k, 1000);
-  CollisionBM(RadixSplineHash_10k, 10000);
+  CollisionBM(RadixSplineHash_4, 4);
+  CollisionBM(RadixSplineHash_16, 16);
+  CollisionBM(RadixSplineHash_128, 128);
+  CollisionBM(RadixSplineHash_1k, 1024);
   CollisionBM(RadixSplineHash_100k, 100000);
-  CollisionBM(RadixSplineHash_1M, 1000000);
-  CollisionBM(RadixSplineHash_10M, 10000000);
-  CollisionBM(RadixSplineHash_100M, 100000000);
 
   CollisionBM(PGMHash_2, 2);
   CollisionBM(PGMHash_100, 100);
