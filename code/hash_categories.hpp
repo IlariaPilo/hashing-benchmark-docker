@@ -73,7 +73,7 @@ struct has_train_method {
     // Modify this line to check for 'train' instead of 'bam'
     template <typename C, typename P>
     static auto test(P * p) -> decltype(std::declval<C>().train(
-        std::declval<P>(), std::declval<P>(), std::declval<size_t>(), std::declval<bool>()),
+        std::declval<P>(), std::declval<P>(), std::declval<size_t>()),
         std::true_type());
     
     template <typename, typename>
