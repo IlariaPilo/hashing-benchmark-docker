@@ -74,15 +74,23 @@ struct has_train_sfinae<T,
                                            std::declval<const size_t>(),
                                            std::declval<bool>())))
 > : std::true_type {};
-
-template <typename T>
-inline constexpr bool has_train = has_train_sfinae<T>::value;
+template <typename T> inline constexpr bool has_train = has_train_sfinae<T>::value;
 
 // Define a helper type trait to check if 'construct' member function exists
-template <typename T, typename = void> struct has_construct_sfinae : std::false_type {};
-template <typename T> struct has_construct_sfinae<T,
-    decltype(void(std::declval<T &>().construct(std::declval<const typename T::value_type &>())))
-> : std::true_type {};
-template <typename T> inline constexpr bool has_construct = has_construct_sfinae<T>::value;
+template <typename T>
+struct has_construct_method {
+    struct dummy { /* something */ };
+
+    // Modify this line to check for 'train' instead of 'bam'
+    template <typename C, typename P>
+    static auto test(P * p) -> decltype(std::declval<C>().construct(
+        std::declval<P>(), std::declval<P>()), std::true_type());
+    
+    template <typename, typename>
+    static std::false_type test(...);
+
+    typedef decltype(test<T, dummy>(nullptr)) type;
+    static const bool value = std::is_same<std::true_type, decltype(test<T, dummy>(nullptr))>::value;
+};
 
 #endif
