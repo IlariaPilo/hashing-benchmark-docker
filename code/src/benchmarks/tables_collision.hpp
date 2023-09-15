@@ -164,6 +164,7 @@ namespace _ {
       std::chrono::time_point<std::chrono::steady_clock> _start_, _end_;
       tot_time = std::chrono::duration<double>(0); // Reset tot_time to zero
 
+      int _c_ = 0;
       for (auto key : keys) {
         switch (type) {
           case HashCategories::PERFECT:
@@ -176,6 +177,10 @@ namespace _ {
             _start_ = std::chrono::steady_clock::now();
             index = fn(key); // /dataset_size;
             _end_ = std::chrono::steady_clock::now();
+            if (index < 0 || index >= num_elements) {
+                // Throw a runtime exception
+                throw std::runtime_error("Index is out of boundaries");
+            }
             break;
           // to remove the warning
           case HashCategories::UNKNOWN:
@@ -183,6 +188,11 @@ namespace _ {
         }
         hash_v[index]++;
         tot_time += _end_ - _start_;
+        _c_++;
+      }
+      if (_c_ != num_elements) {
+          // Throw a runtime exception
+          throw std::runtime_error("Something is wrong with the keys...");
       }
       collisions_count = 0;
       NOT_collisions_count = 0;
@@ -266,20 +276,20 @@ namespace _ {
   using RecSplit = exotic_hashing::RecSplit<std::uint64_t>;
 
   // 8
-  CollisionBM(RMIHash_10, 10);
-  CollisionBM(RMIHash_100, 100);
-  CollisionBM(RMIHash_1k, 1000);
-  CollisionBM(RMIHash_10k, 10000);
-  CollisionBM(RMIHash_100k, 100000);
-  CollisionBM(RMIHash_1M, 1000000);
-  CollisionBM(RMIHash_10M, 10000000);
-  CollisionBM(RMIHash_100M, 100000000);
+  // CollisionBM(RMIHash_10, 10);
+  // CollisionBM(RMIHash_100, 100);
+  // CollisionBM(RMIHash_1k, 1000);
+  // CollisionBM(RMIHash_10k, 10000);
+  // CollisionBM(RMIHash_100k, 100000);
+  // CollisionBM(RMIHash_1M, 1000000);
+  // CollisionBM(RMIHash_10M, 10000000);
+  // CollisionBM(RMIHash_100M, 100000000);
 
-  // 5
-  CollisionBM(RadixSplineHash_4, 4);
-  CollisionBM(RadixSplineHash_16, 16);
-  CollisionBM(RadixSplineHash_128, 128);
-  CollisionBM(RadixSplineHash_1k, 1024);
+  // // 5
+  // CollisionBM(RadixSplineHash_4, 4);
+  // CollisionBM(RadixSplineHash_16, 16);
+  // CollisionBM(RadixSplineHash_128, 128);
+  // CollisionBM(RadixSplineHash_1k, 1024);
   CollisionBM(RadixSplineHash_100k, 100000);
 
   // 5
