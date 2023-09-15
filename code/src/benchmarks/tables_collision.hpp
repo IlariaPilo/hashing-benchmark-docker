@@ -58,6 +58,7 @@ namespace _ {
   std::chrono::duration<double> tot_time(0);
   size_t collisions_count;
   size_t NOT_collisions_count;
+  size_t num_elements;
 
   template <class HashFn, size_t RangeSize>
   static void CollisionStats(benchmark::State &state) {
@@ -82,10 +83,9 @@ namespace _ {
       std::vector<Key> keys = dataset::load_cached<Key>(did, dataset_size);
       #if PRINT
       std::cout << std::endl
-                << " Key Size: " << keys.size() << std::endl;
+                << "Key Size: " << keys.size() << std::endl << std::endl;
       #endif
-
-
+      num_elements = keys.size();
 
       // ensure keys are sorted
       std::sort(keys.begin(), keys.end(),
@@ -120,7 +120,7 @@ namespace _ {
         std::cout << "Learned function training starting...";
         #endif
         // train model on sorted data
-        fn.train(keys.begin(), keys.end(), dataset_size);
+        fn.train(keys.begin(), keys.end(), num_elements);
         #if PRINT
         std::cout << " done." << std::endl;
         #endif
@@ -149,7 +149,7 @@ namespace _ {
       // logic to count collisions - maybe move in the loop
 
       std::vector<size_t> hash_v;
-      hash_v.resize(dataset_size, 0);
+      hash_v.resize(num_elements, 0);
 
       HashCategories type = get_fn_type<HashFn>();
 
@@ -169,7 +169,7 @@ namespace _ {
           case HashCategories::PERFECT:
           case HashCategories::CLASSIC:
             _start_ = std::chrono::steady_clock::now();
-            index = fn(key) % dataset_size;
+            index = fn(key) % num_elements;
             _end_ = std::chrono::steady_clock::now();
             break;
           case HashCategories::LEARNED:
@@ -187,7 +187,7 @@ namespace _ {
       collisions_count = 0;
       NOT_collisions_count = 0;
       // count collisions
-      for (size_t i = 0; i < dataset_size; i++) {
+      for (size_t i = 0; i < num_elements; i++) {
         if (hash_v[i] > 1)
           collisions_count += hash_v[i];
         else NOT_collisions_count += hash_v[i];
@@ -201,7 +201,7 @@ namespace _ {
     #if PRINT
     if (previous_signature != signature) {
       std::cout << std::endl
-                << " Dataset Size: " << std::to_string(dataset_size) << " Dataset: " << dataset::name(did) << std::endl;
+                << " Dataset Size: " << std::to_string(num_elements) << " Dataset: " << dataset::name(did) << std::endl;
     }
     #endif
 
@@ -210,12 +210,12 @@ namespace _ {
     size_t i = 0;
     for (auto _ : state) {}
 
-    if ((collisions_count+NOT_collisions_count) != dataset_size) {
+    if ((collisions_count+NOT_collisions_count) != num_elements) {
         // Throw a runtime exception
         throw std::runtime_error("Collision number does not make sense! :c\nCollisions: "+std::to_string(collisions_count)+"\nNOT collisions: "+std::to_string(NOT_collisions_count));
     }
 
-    state.counters["data_elem_count"] = dataset_size;
+    state.counters["data_elem_count"] = num_elements;
     state.counters["tot_time_s"] = tot_time.count();
     state.counters["collisions"] = collisions_count;
     state.counters["dataset_id"] = static_cast<int>(did);
