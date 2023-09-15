@@ -177,9 +177,9 @@ namespace _ {
             _start_ = std::chrono::steady_clock::now();
             index = fn(key); // /dataset_size;
             _end_ = std::chrono::steady_clock::now();
-            if (index < 0 || index >= num_elements) {
+            if (index >= num_elements) {
                 // Throw a runtime exception
-                throw std::runtime_error("Index is out of boundaries");
+                throw std::runtime_error("Index is out of boundaries ("+std::to_string(index)+")");
             }
             break;
           // to remove the warning
