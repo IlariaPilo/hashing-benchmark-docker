@@ -203,16 +203,12 @@ namespace _ {
     previous_signature = signature;
 
     size_t i = 0;
-    for (auto _ : state) {
-      // auto it = table->useless_func();
-      // benchmark::DoNotOptimize(it);
-      // __sync_synchronize();
+    for (auto _ : state) {}
+
+    if ((collisions_count+NOT_collisions_count) == dataset_size) {
+        // Throw a runtime exception
+        throw std::runtime_error("Collision number does not make sense! :c");
     }
-    // // set counters (don't do this in inner loop to avoid tainting results)
-    // state.counters["table_bytes"] = table->byte_size();
-    // state.counters["table_directory_bytes"] = table->directory_byte_size();
-    // state.counters["table_bits_per_key"] = 8. * table->byte_size() / dataset_size;
-    assert((collisions_count+NOT_collisions_count) == dataset_size);
 
     state.counters["data_elem_count"] = dataset_size;
     state.counters["tot_time_s"] = tot_time.count();
@@ -264,6 +260,7 @@ namespace _ {
   using BitMWHC = exotic_hashing::BitMWHC<Key>;
   using RecSplit = exotic_hashing::RecSplit<std::uint64_t>;
 
+  // 8
   CollisionBM(RMIHash_10, 10);
   CollisionBM(RMIHash_100, 100);
   CollisionBM(RMIHash_1k, 1000);
@@ -273,18 +270,21 @@ namespace _ {
   CollisionBM(RMIHash_10M, 10000000);
   CollisionBM(RMIHash_100M, 100000000);
 
+  // 5
   CollisionBM(RadixSplineHash_4, 4);
   CollisionBM(RadixSplineHash_16, 16);
   CollisionBM(RadixSplineHash_128, 128);
   CollisionBM(RadixSplineHash_1k, 1024);
   CollisionBM(RadixSplineHash_100k, 100000);
 
+  // 5
   CollisionBM(PGMHash_2, 2);
   CollisionBM(PGMHash_100, 100);
   CollisionBM(PGMHash_1k, 1000);
   CollisionBM(PGMHash_32, 32);
   CollisionBM(PGMHash_100k, 100000);
 
+  // 8
   CollisionBM(MURMUR,0);
   CollisionBM(MultPrime64,0);
   CollisionBM(FibonacciPrime64,0);
