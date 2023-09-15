@@ -11,12 +11,12 @@ filter=""
 
 # Function to display usage information
 function show_usage {
-    echo "Usage: $0 [OPTIONS]"
+    echo -e "\n\033[1;96mbenchmark.sh [OPTIONS]\033[0m"
     echo "Options:"
     echo "  -t, --threads THREADS     Number of threads to use (default: all)"
     echo "  -f, --filter FILTER       Type of benchmarks to execute (default: all)"
     echo "                            Available options: collisions (more to be added)"
-    echo "  -h, --help                Display this help message"
+    echo -e "  -h, --help                Display this help message\n"
     exit 1
 }
 
@@ -60,7 +60,9 @@ fi
 echo -e "\n\033[1;96m [benchmark.sh] \033[0mRunning on $thread_number threads.\n"
 
 # Calculate the number of elements per thread
-elements_per_thread=$(((${#all_bm[@]} + thread_number - 1) / thread_number))
+N=${#all_bm[@]}
+elements_per_thread=$((N / thread_number))
+remainder=$((N % thread_number))
 
 # Working filter example
 # bin/template --benchmark_filter=BM_VectorPushBack\<int,\ int\>\|BM_VectorPushBack\<int,\ double\>
@@ -72,8 +74,13 @@ IFS="|"
 
 for ((i = 0; i < thread_number; i++)); do
     end=$((start + elements_per_thread - 1))
+    if [ $remainder -gt 0 ]; then
+        # Handle the last subarray to include any remaining elements
+        end=$((end + 1))
+        remainder=$((remainder - 1))
+    fi
     # Create a slice for the current subarray
-    bm_i=("${all_bm[@]:start:elements_per_thread}")
+    bm_i=("${all_bm[@]:start:end - start + 1}")
 
     # run benchmarks
     cmake-build-release/src/benchmarks --benchmark_filter="${bm_i[*]}" \
