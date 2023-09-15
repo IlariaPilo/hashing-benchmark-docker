@@ -80,6 +80,13 @@ namespace _ {
       auto start = std::chrono::steady_clock::now();
 
       std::vector<Key> keys = dataset::load_cached<Key>(did, dataset_size);
+      #if PRINT
+      std::cout << std::endl
+                << " Key Size: " << keys.size() << std::endl;
+      #endif
+
+
+
       // ensure keys are sorted
       std::sort(keys.begin(), keys.end(),
               [](const auto& a, const auto& b) { return a < b; });
@@ -143,9 +150,7 @@ namespace _ {
 
       std::vector<size_t> hash_v;
       hash_v.resize(dataset_size, 0);
-      // for (auto entry : hash_v) {
-      //   assert(entry == 0);
-      // }
+
       HashCategories type = get_fn_type<HashFn>();
 
       if (type == HashCategories::UNKNOWN) {
@@ -205,9 +210,9 @@ namespace _ {
     size_t i = 0;
     for (auto _ : state) {}
 
-    if ((collisions_count+NOT_collisions_count) == dataset_size) {
+    if ((collisions_count+NOT_collisions_count) != dataset_size) {
         // Throw a runtime exception
-        throw std::runtime_error("Collision number does not make sense! :c");
+        throw std::runtime_error("Collision number does not make sense! :c\nCollisions: "+std::to_string(collisions_count)+"\nNOT collisions: "+std::to_string(NOT_collisions_count));
     }
 
     state.counters["data_elem_count"] = dataset_size;
