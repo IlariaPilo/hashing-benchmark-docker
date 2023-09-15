@@ -27,9 +27,6 @@ static void deduplicate_and_sort(std::vector<T>& vec) {
  */
 template <class Key>
 std::vector<Key> load(const std::string& filepath) {
-  #if PRINT
-  std::cout << "loading dataset " << filepath << std::endl;
-  #endif
 
   // parsing helper functions
   auto read_little_endian_8 = [](const std::vector<unsigned char>& buffer,
@@ -67,10 +64,7 @@ std::vector<Key> load(const std::string& filepath) {
 
     // Parse file
     uint64_t num_elements = read_little_endian_8(buffer, 0);
-    #if PRINT
-      std::cout << "Header says " << num_elements << " elements" << std::endl;
-      std::cout << "Max number of elements is " << max_num_elements << std::endl;
-    #endif
+
     assert(num_elements <= max_num_elements);
     switch (sizeof(Key)) {
       case sizeof(std::uint64_t):
@@ -96,9 +90,6 @@ std::vector<Key> load(const std::string& filepath) {
 
   // remove duplicates from dataset and put it into random order
   deduplicate_and_sort(dataset);
-  #if PRINT
-    std::cout << "Finally we have " << dataset.size() << " elements" << std::endl;
-  #endif
 
   return dataset;
 }
