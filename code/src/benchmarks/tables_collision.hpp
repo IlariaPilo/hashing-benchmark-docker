@@ -84,6 +84,7 @@ namespace _ {
       #if PRINT
       std::cout << std::endl
                 << "Key Size: " << keys.size() << std::endl << std::endl;
+      std::cout << "Distance: " << std::distance(keys.begin(), keys.end()) << std::endl;  
       #endif
       num_elements = keys.size();
 
@@ -164,7 +165,7 @@ namespace _ {
       std::chrono::time_point<std::chrono::steady_clock> _start_, _end_;
       tot_time = std::chrono::duration<double>(0); // Reset tot_time to zero
 
-      int _c_ = 0;
+      size_t _c_ = 0;
       for (auto key : keys) {
         switch (type) {
           case HashCategories::PERFECT:
